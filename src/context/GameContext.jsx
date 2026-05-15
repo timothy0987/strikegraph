@@ -38,7 +38,7 @@ export const GameProvider = ({ children }) => {
   return (
     <GameContext.Provider value={{
       gameState, setGameState,
-      walletConnected, connectWallet,
+      walletConnected,
       walletAddress, balance,
       currentKicker, setCurrentKicker,
       freeKicker, premiumKicker,
