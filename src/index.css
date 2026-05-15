@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white overflow-hidden m-0 p-0 font-arcade;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #root {
+    @apply w-screen h-screen;
+  }
+}
+
+@layer components {
+  .btn-neon {
+    @apply px-6 py-3 border-2 border-neonGreen text-neonGreen font-bold rounded-lg uppercase tracking-wider
+           transition-all duration-300 hover:bg-neonGreen hover:text-black hover:shadow-[0_0_15px_#39FF14]
+           active:scale-95;
+  }
+  
+  .btn-premium {
+    @apply px-6 py-3 border-2 border-neonPink text-neonPink font-bold rounded-lg uppercase tracking-wider
+           transition-all duration-300 hover:bg-neonPink hover:text-white hover:shadow-[0_0_15px_#FF10F0]
+           active:scale-95;
+  }
+
+  .glass-panel {
+    @apply bg-black/60 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl;
+  }
+}
