@@ -1,16 +1,41 @@
-# React + Vite
+# StrikeGraph | Web3 Penalty Kick Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live URL:** [https://strikegraph-ai.vercel.app](https://strikegraph-ai.vercel.app)
 
-Currently, two official plugins are available:
+StrikeGraph is a Web3-integrated 3D penalty kick football game built with React, React Three Fiber, and Wagmi. It features a vibrant, high-contrast arcade aesthetic and integrates with the Hedera Testnet for a seamless blockchain experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- **3D Gameplay**: Realistic ball physics and AI goalkeeper logic powered by React Three Fiber.
+- **Web3 Integration**: Universal wallet connection via RainbowKit and Wagmi.
+- **Hedera Support**: Native support for Hedera Testnet (Chain ID: 296) with dynamic EVM-to-Native ID conversion using the Mirror Node API.
+- **Transfer Market**: In-game economy allowing users to upgrade to premium kickers with enhanced stats.
+- **Arcade Aesthetic**: Neon-drenched visuals and smooth animations.
 
-## React Compiler
+## Tech Stack
+- **Frontend**: React, Vite, Tailwind CSS
+- **3D Engine**: @react-three/fiber, @react-three/drei, Three.js
+- **Web3**: Wagmi, Viem, RainbowKit, TanStack Query
+- **Network**: Hedera Testnet
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js (v18+)
+- npm
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/timothy0987/strikegraph.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Deployment
+The project is configured for automated deployment to Vercel upon pushing to the `main` branch.
