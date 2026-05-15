@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { useAccount, useBalance } from 'wagmi';
 
 const GameContext = createContext();
 
@@ -8,10 +9,11 @@ export const GameProvider = ({ children }) => {
   // 'menu', 'market', 'aiming', 'kicking', 'result'
   const [gameState, setGameState] = useState('menu');
   
-  // Web3 Mock State
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("0xTimoMockAddress890123456789abcdef");
-  const [balance, setBalance] = useState(10000); // 10,000 HBAR
+  // Web3 Hooks
+  const { address, isConnected: walletConnected } = useAccount();
+  const { data: balanceData } = useBalance({ address });
+  const balance = balanceData ? parseFloat(balanceData.formatted) : 0;
+  const walletAddress = address || "";
   
   // Kicker Stats
   const freeKicker = { type: 'Free', power: 50, accuracy: 50, color: '#39FF14' };
@@ -22,15 +24,12 @@ export const GameProvider = ({ children }) => {
   // Game Resolution
   const [result, setResult] = useState(null); // 'GOAL' or 'SAVED'
 
-  const connectWallet = () => {
-    setWalletConnected(true);
-  };
-
   const buyPremiumKicker = () => {
     if (balance >= 500) {
-      setBalance(b => b - 500);
+      // In a real app, this would trigger a write contract transaction.
+      // For now, we just update the local kicker state if balance is sufficient.
       setCurrentKicker(premiumKicker);
-      console.log(`Transaction sent to ${TREASURY_ADDRESS}: 500 HBAR`);
+      console.log(`Transaction simulation to ${TREASURY_ADDRESS}: 500 HBAR`);
       return true;
     }
     return false;
