@@ -2,9 +2,11 @@ import React from 'react';
 import { useGame } from '../context/GameContext';
 import { Wallet, Coins } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useHederaNativeId } from '../hooks/useHederaNativeId';
 
 const MainMenu = () => {
-  const { setGameState, balance, currentKicker } = useGame();
+  const { setGameState, balance, currentKicker, walletAddress } = useGame();
+  const { nativeId } = useHederaNativeId(walletAddress);
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm">
@@ -89,7 +91,7 @@ const MainMenu = () => {
                       </button>
 
                       <button onClick={openAccountModal} type="button" className="glass-panel px-4 py-2 flex items-center gap-3 text-neonGreen font-bold text-sm">
-                        <span>{account.displayName}</span>
+                        <span>{nativeId || account.displayName}</span>
                         {account.displayBalance && (
                           <span className="flex items-center gap-1 text-neonPink">
                              <Coins size={16} /> {account.displayBalance}
