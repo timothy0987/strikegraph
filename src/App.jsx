@@ -4,6 +4,7 @@ import MainMenu from './components/MainMenu';
 import TransferMarket from './components/TransferMarket';
 import GameUI from './components/GameUI';
 import ThreeGame from './components/ThreeGame';
+import Leaderboard from './components/Leaderboard';
 
 const AppContent = () => {
   const { gameState } = useGame();
@@ -20,6 +21,7 @@ const AppContent = () => {
         <div className="pointer-events-auto h-full w-full">
           {gameState === 'menu' && <MainMenu />}
           {gameState === 'market' && <TransferMarket />}
+          {gameState === 'leaderboard' && <Leaderboard />}
           {(gameState === 'aiming' || gameState === 'kicking' || gameState === 'result') && <GameUI />}
         </div>
       </div>

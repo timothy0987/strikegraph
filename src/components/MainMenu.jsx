@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Wallet, Coins } from 'lucide-react';
+import { Wallet, Coins, Trophy } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useHederaNativeId } from '../hooks/useHederaNativeId';
 
@@ -132,6 +132,12 @@ const MainMenu = () => {
             className="glass-panel py-3 text-gray-300 hover:text-white transition-colors border border-white/10 hover:border-white/30"
           >
             TRANSFER MARKET
+          </button>
+          <button 
+            onClick={() => setGameState('leaderboard')} 
+            className="glass-panel py-3 text-gray-300 hover:text-white transition-colors border border-white/10 hover:border-white/30 flex items-center justify-center gap-2"
+          >
+            <Trophy size={16} className="text-neonGreen" /> LEADERBOARD
           </button>
         </div>
       </div>

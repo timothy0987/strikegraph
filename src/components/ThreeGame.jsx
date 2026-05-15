@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGame } from '../context/GameContext';
+import { useXP } from '../hooks/useXP';
 
 const KEEPER_SAVE_STAT = 60;
 const ZONES = [
@@ -142,6 +143,7 @@ const Ball = ({ targetZone, gameState, onKickComplete }) => {
 
 const ThreeGame = () => {
   const { gameState, setGameState, currentKicker, setResult } = useGame();
+  const { addXP } = useXP();
   
   const [targetZone, setTargetZone] = useState(null);
   const [keeperTarget, setKeeperTarget] = useState(null);
@@ -174,6 +176,9 @@ const ThreeGame = () => {
         isGoal = false;
       }
     }
+
+    // Award 50 XP for every kick
+    addXP(50);
 
     setResult(isGoal ? 'GOAL' : 'SAVED');
     setGameState('result');
