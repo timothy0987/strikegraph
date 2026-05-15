@@ -24,7 +24,7 @@ const MainMenu = () => {
 
       <div className="glass-panel p-10 flex flex-col items-center gap-8 min-w-[400px]">
         <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]">
-          WEB3 PENALTY
+          STRIKEGRAPH
         </h1>
         
         <div className="text-gray-400 flex flex-col items-center gap-2">
