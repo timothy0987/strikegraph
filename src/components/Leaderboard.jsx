@@ -32,15 +32,6 @@ const Leaderboard = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/60 backdrop-blur-md">
       
-      <div className="absolute top-8 left-8">
-        <button 
-          onClick={() => setGameState('menu')}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-        >
-          <ChevronLeft /> Back to Menu
-        </button>
-      </div>
-
       <div className="glass-panel p-8 w-[600px] flex flex-col gap-6">
         <div className="text-center">
           <h2 className="text-3xl font-black text-neonGreen flex items-center justify-center gap-3 drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]">
