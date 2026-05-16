@@ -21,13 +21,15 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
     
     Object.values(actions).forEach(action => action?.fadeOut(0.2));
 
-    if (gameState === 'aiming' && actions['Idle']) {
-      actions['Idle'].reset().fadeIn(0.2).play();
+    const idleAnim = actions['Idle'] || actions['idle'] || actions[Object.keys(actions)[0]];
+
+    if (gameState === 'aiming' && idleAnim) {
+      idleAnim.reset().fadeIn(0.2).play();
     } else if (gameState === 'kicking' && keeperTarget) {
       const isDivingLeft = keeperTarget.position[0] > 0;
       const diveAnimName = isDivingLeft ? 'DiveLeft' : 'DiveRight';
       
-      const diveAction = actions[diveAnimName] || actions['DiveLeft'] || actions['DiveRight'];
+      const diveAction = actions[diveAnimName] || actions['DiveLeft'] || actions['DiveRight'] || actions[Object.keys(actions)[1]] || idleAnim;
       if (diveAction) {
         diveAction.reset().fadeIn(0.2).play();
         diveAction.setLoop(THREE.LoopOnce, 1);

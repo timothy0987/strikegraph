@@ -21,10 +21,13 @@ const PlayerModel = ({ gameState }) => {
     // Stop all actions first
     Object.values(actions).forEach(action => action?.fadeOut(0.2));
 
-    if (gameState === 'aiming' && actions['Idle']) {
-      actions['Idle'].reset().fadeIn(0.2).play();
-    } else if (gameState === 'kicking' && actions['PenaltyKick']) {
-      const kickAction = actions['PenaltyKick'].reset().fadeIn(0.2).play();
+    const idleAnim = actions['Idle'] || actions['idle'] || actions[Object.keys(actions)[0]];
+    const kickAnim = actions['PenaltyKick'] || actions['penaltykick'] || actions[Object.keys(actions)[1]] || idleAnim;
+
+    if (gameState === 'aiming' && idleAnim) {
+      idleAnim.reset().fadeIn(0.2).play();
+    } else if (gameState === 'kicking' && kickAnim) {
+      const kickAction = kickAnim.reset().fadeIn(0.2).play();
       kickAction.setLoop(THREE.LoopOnce, 1);
       kickAction.clampWhenFinished = true;
     }
