@@ -3,7 +3,7 @@ import { GameProvider, useGame } from './context/GameContext';
 import MainMenu from './components/MainMenu';
 import TransferMarket from './components/TransferMarket';
 import GameUI from './components/GameUI';
-import ThreeGame from './components/ThreeGame';
+import GameScene from './components/GameScene';
 import Leaderboard from './components/Leaderboard';
 import TopNav from './components/TopNav';
 
@@ -16,7 +16,7 @@ const AppContent = () => {
       {/* 3D Canvas Background layer */}
       {gameState !== 'leaderboard' && (
         <div className="absolute inset-0 z-0">
-          <ThreeGame />
+          <GameScene />
         </div>
       )}
 
