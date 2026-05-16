@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { db } from '../firebase';
+import { ref, set } from 'firebase/database';
+import { useHederaNativeId } from './useHederaNativeId';
 
 export const useXP = () => {
   const { address } = useAccount();
   const [xp, setXp] = useState(0);
 
+  const { nativeId } = useHederaNativeId(address);
   const storageKey = address ? `strikegraph_xp_${address}` : null;
 
   useEffect(() => {
@@ -23,6 +27,11 @@ export const useXP = () => {
     const newXp = xp + amount;
     setXp(newXp);
     localStorage.setItem(storageKey, newXp.toString());
+
+    // Sync to Firebase
+    if (nativeId) {
+      set(ref(db, 'leaderboard/' + nativeId), newXp);
+    }
   };
 
   return { xp, addXP };
