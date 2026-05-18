@@ -37,7 +37,7 @@ const AimingReticle = ({ aimX }) => {
 };
 
 const GameScene = () => {
-  const { gameState, setGameState, currentKicker, setResult } = useGame();
+  const { gameState, setGameState, selectedPlayer, setResult } = useGame();
   const { addXP } = useXP();
   
   const [aimX, setAimX] = useState(0);
@@ -84,8 +84,14 @@ const GameScene = () => {
   const triggerKick = () => {
     if (gameState !== 'aiming') return;
     
-    // Set target zone object for Football.jsx backward compatibility
-    setTargetZone({ position: [aimX, 0.5, -4.5] });
+    // Calculate variance based on accuracy
+    const variance = (Math.random() - 0.5) * 1.5; // +/- 0.75 spread max
+    const reducedVariance = variance / selectedPlayer.accuracy;
+    let finalAimX = aimX + reducedVariance;
+    finalAimX = Math.max(Math.min(finalAimX, 2.5), -2.5); // clamp
+
+    // Set target zone object for Football.jsx
+    setTargetZone({ position: [finalAimX, 0.5, -4.5] });
     
     // AI Keeper decides randomly between -2.5 and 2.5
     const keeperRandomX = (Math.random() * 5) - 2.5;
@@ -99,14 +105,14 @@ const GameScene = () => {
     
     let isGoal = false;
     
-    // Distance check to see if keeper saved it
     const dist = Math.abs(targetZone.position[0] - keeperTarget.position[0]);
-    if (dist > 1.0) { // Keeper missed the zone by more than 1 unit
+    if (dist > 0.8) { 
       isGoal = true;
     } else {
-      // RNG Check if keeper was close enough
-      const accScore = (currentKicker.accuracy * 0.6) + (Math.random() * 40);
-      if (accScore > KEEPER_SAVE_STAT) {
+      // If keeper is close, chance to save based on power (more power = less likely to save)
+      const saveChance = KEEPER_SAVE_STAT / selectedPlayer.power;
+      const roll = Math.random() * 100;
+      if (roll > saveChance) {
         isGoal = true;
       } else {
         isGoal = false;
@@ -139,9 +145,9 @@ const GameScene = () => {
         <Pitch />
         <Goalpost />
         
-        <PlayerNFT nftUrl={null} gameState={gameState} />
-        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} nftUrl={null} />
-        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} />
+        <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
+        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer.power} />
+        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer.power} />
 
         {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
         

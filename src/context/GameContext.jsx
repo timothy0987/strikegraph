@@ -15,34 +15,25 @@ export const GameProvider = ({ children }) => {
   const balance = balanceData ? parseFloat(balanceData.formatted) : 0;
   const walletAddress = address || "";
   
-  // Kicker Stats
-  const freeKicker = { type: 'Free', power: 50, accuracy: 50, color: '#39FF14' };
-  const premiumKicker = { type: 'Premium', power: 85, accuracy: 80, color: '#FF10F0' };
-  
-  const [currentKicker, setCurrentKicker] = useState(freeKicker);
+  // Player Variants
+  const playerVariants = [
+    { id: 'base', name: 'Base', price: 0, color: '#00FFFF', power: 1.0, accuracy: 1.0 },
+    { id: 'striker', name: 'Striker', price: 50, color: '#FF0033', power: 1.5, accuracy: 1.0 },
+    { id: 'sniper', name: 'Sniper', price: 100, color: '#00FF33', power: 1.0, accuracy: 1.5 },
+    { id: 'legend', name: 'Legend', price: 500, color: '#FFD700', power: 1.8, accuracy: 1.8 }
+  ];
+
+  const [selectedPlayer, setSelectedPlayer] = useState(playerVariants[0]);
   
   // Game Resolution
   const [result, setResult] = useState(null); // 'GOAL' or 'SAVED'
-
-  const buyPremiumKicker = () => {
-    if (balance >= 500) {
-      // In a real app, this would trigger a write contract transaction.
-      // For now, we just update the local kicker state if balance is sufficient.
-      setCurrentKicker(premiumKicker);
-      console.log(`Transaction simulation to ${TREASURY_ADDRESS}: 500 HBAR`);
-      return true;
-    }
-    return false;
-  };
 
   return (
     <GameContext.Provider value={{
       gameState, setGameState,
       walletConnected,
       walletAddress, balance,
-      currentKicker, setCurrentKicker,
-      freeKicker, premiumKicker,
-      buyPremiumKicker,
+      playerVariants, selectedPlayer, setSelectedPlayer,
       result, setResult
     }}>
       {children}

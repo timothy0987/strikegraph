@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Icosahedron } from '@react-three/drei';
 import * as THREE from 'three';
 
-const Football = ({ targetZone, gameState, onKickComplete }) => {
+const Football = ({ targetZone, gameState, onKickComplete, power = 1.0 }) => {
   const ref = useRef();
   // Requested start position: [0, 0.5, 3]
   const startPos = new THREE.Vector3(0, 0.5, 3);
@@ -23,7 +23,7 @@ const Football = ({ targetZone, gameState, onKickComplete }) => {
 
   useFrame((state, delta) => {
     if (gameState === 'kicking') {
-      progress.current += delta * 2; // Speed
+      progress.current += delta * 2 * power; // Speed scaled by power
       if (progress.current > 1) progress.current = 1;
       
       // Arc the ball slightly

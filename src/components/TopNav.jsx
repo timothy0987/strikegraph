@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Wallet, Coins, Trophy, Gamepad2 } from 'lucide-react';
+import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useHederaNativeId } from '../hooks/useHederaNativeId';
 
@@ -8,15 +8,13 @@ const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
   const { nativeId } = useHederaNativeId(walletAddress);
 
-  // We consider 'menu', 'aiming', 'kicking', 'result', 'market' all under the "Play" tab context
   const isLeaderboard = gameState === 'leaderboard';
+  const isMarket = gameState === 'market';
+  const isPlay = !isLeaderboard && !isMarket;
 
-  const handlePlayClick = () => {
-    // If currently on leaderboard, returning to play should go to menu
-    if (isLeaderboard) {
-      setGameState('menu');
-    }
-  };
+  const handlePlayClick = () => setGameState('menu');
+  const handleMarketClick = () => setGameState('market');
+  const handleLeaderboardClick = () => setGameState('leaderboard');
 
   const handleLeaderboardClick = () => {
     setGameState('leaderboard');
@@ -32,12 +30,22 @@ const TopNav = () => {
           <button
             onClick={handlePlayClick}
             className={`flex items-center gap-2 px-4 py-2 font-bold transition-all ${
-              !isLeaderboard
+              isPlay
                 ? 'text-neonGreen border-b-2 border-neonGreen shadow-[0_4px_10px_-2px_rgba(57,255,20,0.5)]'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
             <Gamepad2 size={18} /> PLAY
+          </button>
+          <button
+            onClick={handleMarketClick}
+            className={`flex items-center gap-2 px-4 py-2 font-bold transition-all ${
+              isMarket
+                ? 'text-[#00FFFF] border-b-2 border-[#00FFFF] shadow-[0_4px_10px_-2px_rgba(0,255,255,0.5)]'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <ShoppingCart size={18} /> MARKET
           </button>
           <button
             onClick={handleLeaderboardClick}

@@ -35,7 +35,7 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
   return <primitive object={scene} scale={[1, 1, 1]} />;
 };
 
-const KeeperNFT = ({ keeperTarget, gameState, nftUrl }) => {
+const KeeperNFT = ({ keeperTarget, gameState, power = 1.0 }) => {
   const ref = useRef();
   const startPos = new THREE.Vector3(0, 0, -4.5);
   const targetPos = useRef(new THREE.Vector3(0, 0, -4.5));
@@ -52,7 +52,7 @@ const KeeperNFT = ({ keeperTarget, gameState, nftUrl }) => {
 
   useFrame((state, delta) => {
     if (gameState === 'kicking' || gameState === 'result') {
-      ref.current.position.lerp(targetPos.current, 5 * delta);
+      ref.current.position.lerp(targetPos.current, 5 * power * delta);
     }
   });
 

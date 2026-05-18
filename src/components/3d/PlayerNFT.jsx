@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
-const PlayerModel = ({ gameState }) => {
+const PlayerModel = ({ gameState, selectedPlayer }) => {
   const { scene, animations } = useGLTF('/player1.glb');
   const { actions } = useAnimations(animations, scene);
 
@@ -11,9 +11,13 @@ const PlayerModel = ({ gameState }) => {
       if (object.isMesh) {
         object.castShadow = true;
         object.receiveShadow = true;
+        if (selectedPlayer && selectedPlayer.color) {
+          object.material.emissive = new THREE.Color(selectedPlayer.color);
+          object.material.emissiveIntensity = 0.5;
+        }
       }
     });
-  }, [scene]);
+  }, [scene, selectedPlayer]);
 
   useEffect(() => {
     if (!animations || !animations.length || !actions) return;
@@ -36,11 +40,11 @@ const PlayerModel = ({ gameState }) => {
   return <primitive object={scene} scale={[1, 1, 1]} />;
 };
 
-const PlayerNFT = ({ gameState }) => {
+const PlayerNFT = ({ gameState, selectedPlayer }) => {
   return (
     <group position={[0, 0, 4]} rotation={[0, Math.PI, 0]}>
       <Suspense fallback={null}>
-        <PlayerModel gameState={gameState} />
+        <PlayerModel gameState={gameState} selectedPlayer={selectedPlayer} />
       </Suspense>
     </group>
   );
