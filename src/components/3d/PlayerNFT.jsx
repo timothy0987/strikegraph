@@ -16,32 +16,22 @@ const PlayerModel = ({ gameState }) => {
   }, [scene]);
 
   useEffect(() => {
+    if (!animations || animations.length === 0) return;
     if (!actions || Object.keys(actions).length === 0) return;
-    
-    console.log('Player Actions:', Object.keys(actions));
     
     // Stop all actions first
     Object.values(actions).forEach(action => action?.fadeOut(0.2));
 
-    let idleAnim = actions['Idle'] || actions['idle'];
-    if (!idleAnim && Object.keys(actions).length > 0) {
-      idleAnim = actions[Object.keys(actions)[0]];
-    }
+    const kickAnimName = animations[0].name;
 
-    let kickAnim = actions['PenaltyKick'] || actions['penaltykick'];
-    if (!kickAnim && Object.keys(actions).length > 1) {
-      kickAnim = actions[Object.keys(actions)[1]];
+    if (gameState === 'kicking') {
+      actions[kickAnimName].reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 1);
+      actions[kickAnimName].clampWhenFinished = true;
+      actions[kickAnimName].play();
+    } else {
+      actions[kickAnimName].reset().fadeIn(0.2).play();
     }
-    if (!kickAnim) kickAnim = idleAnim;
-
-    if (gameState === 'kicking' && kickAnim) {
-      const kickAction = kickAnim.reset().fadeIn(0.2).play();
-      kickAction.setLoop(THREE.LoopOnce, 1);
-      kickAction.clampWhenFinished = true;
-    } else if (idleAnim) {
-      idleAnim.reset().fadeIn(0.2).play();
-    }
-  }, [gameState, actions]);
+  }, [gameState, actions, animations]);
 
   return <primitive object={scene} scale={[1, 1, 1]} />;
 };
