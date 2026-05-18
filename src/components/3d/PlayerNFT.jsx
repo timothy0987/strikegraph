@@ -16,20 +16,30 @@ const PlayerModel = ({ gameState }) => {
   }, [scene]);
 
   useEffect(() => {
-    if (!actions) return;
+    if (!actions || Object.keys(actions).length === 0) return;
+    
+    console.log('Player Actions:', Object.keys(actions));
     
     // Stop all actions first
     Object.values(actions).forEach(action => action?.fadeOut(0.2));
 
-    const idleAnim = actions['Idle'] || actions['idle'] || actions[Object.keys(actions)[0]];
-    const kickAnim = actions['PenaltyKick'] || actions['penaltykick'] || actions[Object.keys(actions)[1]] || idleAnim;
+    let idleAnim = actions['Idle'] || actions['idle'];
+    if (!idleAnim && Object.keys(actions).length > 0) {
+      idleAnim = actions[Object.keys(actions)[0]];
+    }
 
-    if (gameState === 'aiming' && idleAnim) {
-      idleAnim.reset().fadeIn(0.2).play();
-    } else if (gameState === 'kicking' && kickAnim) {
+    let kickAnim = actions['PenaltyKick'] || actions['penaltykick'];
+    if (!kickAnim && Object.keys(actions).length > 1) {
+      kickAnim = actions[Object.keys(actions)[1]];
+    }
+    if (!kickAnim) kickAnim = idleAnim;
+
+    if (gameState === 'kicking' && kickAnim) {
       const kickAction = kickAnim.reset().fadeIn(0.2).play();
       kickAction.setLoop(THREE.LoopOnce, 1);
       kickAction.clampWhenFinished = true;
+    } else if (idleAnim) {
+      idleAnim.reset().fadeIn(0.2).play();
     }
   }, [gameState, actions]);
 

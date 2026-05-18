@@ -17,24 +17,34 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
   }, [scene]);
 
   useEffect(() => {
-    if (!actions) return;
+    if (!actions || Object.keys(actions).length === 0) return;
     
+    console.log('Keeper Actions:', Object.keys(actions));
+
     Object.values(actions).forEach(action => action?.fadeOut(0.2));
 
-    const idleAnim = actions['Idle'] || actions['idle'] || actions[Object.keys(actions)[0]];
+    let idleAnim = actions['Idle'] || actions['idle'];
+    if (!idleAnim && Object.keys(actions).length > 0) {
+      idleAnim = actions[Object.keys(actions)[0]];
+    }
 
-    if (gameState === 'aiming' && idleAnim) {
-      idleAnim.reset().fadeIn(0.2).play();
-    } else if (gameState === 'kicking' && keeperTarget) {
+    if (gameState === 'kicking' && keeperTarget) {
       const isDivingLeft = keeperTarget.position[0] > 0;
       const diveAnimName = isDivingLeft ? 'DiveLeft' : 'DiveRight';
       
-      const diveAction = actions[diveAnimName] || actions['DiveLeft'] || actions['DiveRight'] || actions[Object.keys(actions)[1]] || idleAnim;
+      let diveAction = actions[diveAnimName] || actions['DiveLeft'] || actions['DiveRight'];
+      if (!diveAction && Object.keys(actions).length > 1) {
+         diveAction = actions[Object.keys(actions)[1]];
+      }
+      if (!diveAction) diveAction = idleAnim;
+
       if (diveAction) {
         diveAction.reset().fadeIn(0.2).play();
         diveAction.setLoop(THREE.LoopOnce, 1);
         diveAction.clampWhenFinished = true;
       }
+    } else if (idleAnim) {
+      idleAnim.reset().fadeIn(0.2).play();
     }
   }, [gameState, actions, keeperTarget]);
 

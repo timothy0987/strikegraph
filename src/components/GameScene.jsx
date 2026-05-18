@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, OrbitControls, Ring } from '@react-three/drei';
 import { useGame } from '../context/GameContext';
 import { useXP } from '../hooks/useXP';
@@ -11,6 +11,30 @@ import KeeperNFT from './3d/KeeperNFT';
 import { Pitch, Goalpost } from './3d/Stadium';
 
 const KEEPER_SAVE_STAT = 60;
+
+const AimingReticle = ({ aimX }) => {
+  const materialRef = useRef();
+
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.emissiveIntensity = 2 + Math.sin(clock.elapsedTime * 5);
+    }
+  });
+
+  return (
+    <mesh position={[aimX, 0.03, -4.5]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[0.3, 0.4, 32]} />
+      <meshStandardMaterial 
+        ref={materialRef} 
+        color="#39FF14" 
+        emissive="#39FF14" 
+        emissiveIntensity={2} 
+        transparent
+        opacity={0.8}
+      />
+    </mesh>
+  );
+};
 
 const GameScene = () => {
   const { gameState, setGameState, currentKicker, setResult } = useGame();
@@ -119,12 +143,7 @@ const GameScene = () => {
         <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} nftUrl={null} />
         <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} />
 
-        {gameState === 'aiming' && (
-          <mesh position={[aimX, 0.03, -4.5]} rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[0.3, 0.4, 32]} />
-            <meshStandardMaterial color="#39FF14" emissive="#39FF14" emissiveIntensity={2} />
-          </mesh>
-        )}
+        {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
         
         <Environment preset="night" />
       </Canvas>
