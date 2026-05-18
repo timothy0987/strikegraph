@@ -16,20 +16,20 @@ const PlayerModel = ({ gameState }) => {
   }, [scene]);
 
   useEffect(() => {
-    if (!animations || animations.length === 0) return;
-    if (!actions || Object.keys(actions).length === 0) return;
-    
-    // Stop all actions first
-    Object.values(actions).forEach(action => action?.fadeOut(0.2));
+    if (!animations || !animations.length || !actions) return;
+    const animName = animations[0].name;
+    const action = actions[animName];
 
-    const kickAnimName = animations[0].name;
-
-    if (gameState === 'kicking') {
-      actions[kickAnimName].reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 1);
-      actions[kickAnimName].clampWhenFinished = true;
-      actions[kickAnimName].play();
-    } else {
-      actions[kickAnimName].reset().fadeIn(0.2).play();
+    if (gameState === 'aiming') {
+      // Play the animation but instantly pause it on the first frame to act as a ready stance
+      action.reset().play();
+      action.paused = true; 
+      action.time = 0; 
+    } else if (gameState === 'kicking') {
+      // Unpause and play through once
+      action.paused = false;
+      action.reset().setLoop(THREE.LoopOnce).clampWhenFinished = true;
+      action.play();
     }
   }, [gameState, actions, animations]);
 

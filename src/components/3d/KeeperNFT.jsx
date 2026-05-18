@@ -17,19 +17,18 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
   }, [scene]);
 
   useEffect(() => {
-    if (!animations || animations.length === 0) return;
-    if (!actions || Object.keys(actions).length === 0) return;
+    if (!animations || !animations.length || !actions) return;
+    const animName = animations[0].name;
+    const action = actions[animName];
 
-    Object.values(actions).forEach(action => action?.fadeOut(0.2));
-
-    const diveAnimName = animations[0].name;
-
-    if (gameState === 'kicking') {
-      actions[diveAnimName].reset().fadeIn(0.2).setLoop(THREE.LoopOnce, 1);
-      actions[diveAnimName].clampWhenFinished = true;
-      actions[diveAnimName].play();
-    } else {
-      actions[diveAnimName].reset().fadeIn(0.2).play();
+    if (gameState === 'aiming') {
+      action.reset().play();
+      action.paused = true; 
+      action.time = 0; 
+    } else if (gameState === 'kicking') {
+      action.paused = false;
+      action.reset().setLoop(THREE.LoopOnce).clampWhenFinished = true;
+      action.play();
     }
   }, [gameState, actions, animations, keeperTarget]);
 
