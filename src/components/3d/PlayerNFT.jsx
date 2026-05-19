@@ -7,17 +7,23 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
   const { actions } = useAnimations(animations, scene);
 
   useEffect(() => {
-    scene.traverse((object) => {
-      if (object.isMesh) {
-        object.castShadow = true;
-        object.receiveShadow = true;
-        if (selectedPlayer && selectedPlayer.color) {
-          object.material.emissive = new THREE.Color(selectedPlayer.color);
-          object.material.emissiveIntensity = 0.5;
+    if (!scene || !selectedPlayer || !selectedPlayer.color) return;
+    
+    // Create the color object ONCE outside the traverse loop
+    const targetColor = new THREE.Color(selectedPlayer.color);
+    
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (child.material) {
+          // Safely mutate the existing material, DO NOT clone it
+          child.material.emissive = targetColor;
+          child.material.emissiveIntensity = 0.5;
         }
       }
     });
-  }, [scene, selectedPlayer?.color]);
+  }, [scene, selectedPlayer?.color]); // STRICT dependencies to prevent infinite loops
 
   useEffect(() => {
     if (!animations || !animations.length || !actions) return;
