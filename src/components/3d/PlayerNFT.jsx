@@ -17,7 +17,7 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
         }
       }
     });
-  }, [scene, selectedPlayer]);
+  }, [scene, selectedPlayer?.color]);
 
   useEffect(() => {
     if (!animations || !animations.length || !actions) return;
