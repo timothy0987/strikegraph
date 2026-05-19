@@ -16,10 +16,6 @@ const TopNav = () => {
   const handleMarketClick = () => setGameState('market');
   const handleLeaderboardClick = () => setGameState('leaderboard');
 
-  const handleLeaderboardClick = () => {
-    setGameState('leaderboard');
-  };
-
   return (
     <nav className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-50 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
       <div className="flex items-center gap-6 pl-4">
