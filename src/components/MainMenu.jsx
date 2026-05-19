@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Coins } from 'lucide-react';
 
 const MainMenu = () => {
-  const { setGameState, currentKicker } = useGame();
+  const { setGameState, selectedPlayer } = useGame();
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm">
@@ -14,10 +14,10 @@ const MainMenu = () => {
         {/* Title moved to TopNav */}
         
         <div className="text-gray-400 flex flex-col items-center gap-2">
-          <span>Current Kicker: <span style={{ color: currentKicker.color }} className="font-bold">{currentKicker.type}</span></span>
+          <span>Current Kicker: <span style={{ color: selectedPlayer?.color }} className="font-bold">{selectedPlayer?.name}</span></span>
           <div className="flex gap-4 text-sm">
-            <span>PWR: {currentKicker.power}</span>
-            <span>ACC: {currentKicker.accuracy}</span>
+            <span>PWR: {selectedPlayer?.power}x</span>
+            <span>ACC: {selectedPlayer?.accuracy}x</span>
           </div>
         </div>
 
