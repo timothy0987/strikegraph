@@ -84,9 +84,8 @@ const GameScene = () => {
   const triggerKick = () => {
     if (gameState !== 'aiming') return;
     
-    // Calculate variance based on accuracy
     const variance = (Math.random() - 0.5) * 1.5; // +/- 0.75 spread max
-    const reducedVariance = variance / selectedPlayer.accuracy;
+    const reducedVariance = variance / (selectedPlayer?.accuracy || 1.0);
     let finalAimX = aimX + reducedVariance;
     finalAimX = Math.max(Math.min(finalAimX, 2.5), -2.5); // clamp
 
@@ -110,7 +109,7 @@ const GameScene = () => {
       isGoal = true;
     } else {
       // If keeper is close, chance to save based on power (more power = less likely to save)
-      const saveChance = KEEPER_SAVE_STAT / selectedPlayer.power;
+      const saveChance = KEEPER_SAVE_STAT / (selectedPlayer?.power || 1.0);
       const roll = Math.random() * 100;
       if (roll > saveChance) {
         isGoal = true;
@@ -146,8 +145,8 @@ const GameScene = () => {
         <Goalpost />
         
         <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
-        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer.power} />
-        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer.power} />
+        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} />
+        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} />
 
         {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
         

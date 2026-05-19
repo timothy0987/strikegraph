@@ -7,7 +7,7 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
   const { actions } = useAnimations(animations, scene);
 
   useEffect(() => {
-    if (!scene || !selectedPlayer || !selectedPlayer.color) return;
+    if (!scene || !selectedPlayer?.color) return;
     
     // Create the color object ONCE outside the traverse loop
     const targetColor = new THREE.Color(selectedPlayer.color);
