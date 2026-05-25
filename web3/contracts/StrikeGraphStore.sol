@@ -78,7 +78,7 @@ contract StrikeGraphStore {
      * @notice Stake HBAR before playing (must be exactly 5 or 50 HBAR).
      */
     function stake() external payable {
-        require(msg.value == 5 ether || msg.value == 50 ether, "Stake must be exactly 5 or 50 HBAR");
+        require(msg.value >= 5 ether, "Minimum stake is 5 HBAR");
         require(activeStakes[msg.sender] == 0, "Already have an active stake");
 
         activeStakes[msg.sender] = msg.value;

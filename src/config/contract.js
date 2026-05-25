@@ -1,5 +1,6 @@
 // Deployed StrikeGraphStore contract address on Hedera Testnet
-export const STRIKEGRAPH_STORE_ADDRESS = "0x7a83B3673F1C4Fd25268c1E81D46FFb1c676C296"; // Replace with your actual deployed contract address
+// IMPORTANT: Replace this placeholder with your actual deployed contract address on Hedera Testnet
+export const STRIKEGRAPH_STORE_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with your actual deployed contract address
 
 export const STRIKEGRAPH_STORE_ABI = [
   {

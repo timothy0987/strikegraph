@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { Coins } from 'lucide-react';
 
 const StakingMenu = () => {
   const { stakeOnChain, isPending, setGameState } = useGame();
+  const [stakeAmount, setStakeAmount] = useState(5);
+
+  const handleStakeClick = () => {
+    const val = parseFloat(stakeAmount);
+    if (isNaN(val) || val < 5) {
+      alert("Minimum stake is 5 HBAR");
+      return;
+    }
+    stakeOnChain(val);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm">
-      <div className="glass-panel p-10 flex flex-col items-center gap-8 min-w-[400px] border border-neonGreen/20 shadow-[0_0_30px_rgba(57,255,20,0.1)]">
+      <div className="glass-panel p-10 flex flex-col items-center gap-6 min-w-[400px] border border-neonGreen/20 shadow-[0_0_30px_rgba(57,255,20,0.1)]">
         <div className="flex flex-col items-center gap-3">
           <div className="p-4 rounded-full bg-neonGreen/10 border border-neonGreen/30 animate-pulse text-neonGreen">
             <Coins size={40} />
@@ -21,24 +31,28 @@ const StakingMenu = () => {
         </div>
 
         <div className="flex flex-col gap-4 w-full">
+          {/* Numeric Input */}
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
+              Stake Amount (Min 5 HBAR)
+            </label>
+            <input 
+              type="number"
+              min="5"
+              step="any"
+              value={stakeAmount}
+              onChange={(e) => setStakeAmount(e.target.value)}
+              disabled={isPending}
+              className="w-full bg-black/60 border border-white/10 hover:border-white/20 focus:border-neonGreen focus:outline-none text-white text-center font-bold text-xl py-3 rounded-lg tracking-wider shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] transition-colors"
+            />
+          </div>
+
           <button 
             disabled={isPending}
-            onClick={() => stakeOnChain(5)} 
-            className="btn-neon w-full py-4 text-xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] disabled:opacity-50"
+            onClick={handleStakeClick} 
+            className="btn-neon w-full py-4 text-xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] disabled:opacity-50 mt-2"
           >
-            STAKE 5 HBAR
-          </button>
-          <button 
-            disabled={isPending}
-            onClick={() => stakeOnChain(50)} 
-            className="btn-neon w-full py-4 text-xl flex items-center justify-center gap-2 border-neonBlue hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] disabled:opacity-50"
-            style={{ 
-              borderColor: '#00FFFF', 
-              boxShadow: '0 0 10px rgba(0,255,255,0.2)',
-              textShadow: '0 0 5px #00FFFF'
-            }}
-          >
-            STAKE 50 HBAR
+            STAKE HBAR
           </button>
           
           <button 
