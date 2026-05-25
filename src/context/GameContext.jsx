@@ -47,9 +47,15 @@ export const GameProvider = ({ children }) => {
 
   const { writeContract, data: writeHash, error: writeError } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt({
+  // Memoize config to prevent infinite render loops when txHash is null/undefined
+  const waitConfig = React.useMemo(() => ({
     hash: txHash || undefined,
-  });
+    query: {
+      enabled: !!txHash,
+    }
+  }), [txHash]);
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt(waitConfig);
 
   const stakeOnChain = (amountHbar) => {
     setIsPending(true);

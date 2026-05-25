@@ -34,10 +34,15 @@ const AdminPanel = () => {
   // 3. Write contract for withdrawLiquidity
   const { writeContract, data: txHash, error: writeError, isPending: isWritePending } = useWriteContract();
 
-  // 4. Wait for transaction completion
-  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
+  // 4. Wait for transaction completion (memoized to prevent loops)
+  const waitConfig = React.useMemo(() => ({
+    hash: txHash || undefined,
+    query: {
+      enabled: !!txHash,
+    }
+  }), [txHash]);
+
+  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt(waitConfig);
 
   // Refetch balance when transaction completes
   useEffect(() => {
