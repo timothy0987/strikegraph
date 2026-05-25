@@ -10,12 +10,17 @@ const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
   const { nativeId } = useHederaNativeId(walletAddress);
 
-  // Read owner address from smart contract
-  const { data: ownerAddress } = useReadContract({
+  // Read owner address from smart contract (memoized to prevent infinite render loops)
+  const ownerReadConfig = React.useMemo(() => ({
     address: STRIKEGRAPH_STORE_ADDRESS,
     abi: STRIKEGRAPH_STORE_ABI,
     functionName: 'owner',
-  });
+    query: {
+      notifyOnChangeProps: ['data'],
+    }
+  }), []);
+
+  const { data: ownerAddress } = useReadContract(ownerReadConfig);
 
   const showAdminTab = walletAddress && ownerAddress && walletAddress.toLowerCase() === ownerAddress.toLowerCase();
 

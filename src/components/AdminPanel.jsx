@@ -9,17 +9,27 @@ const AdminPanel = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [localError, setLocalError] = useState('');
 
-  // 1. Read owner address from smart contract
-  const { data: ownerAddress, isLoading: isReadingOwner } = useReadContract({
+  // 1. Read owner address from smart contract (memoized to prevent loops)
+  const ownerReadConfig = React.useMemo(() => ({
     address: STRIKEGRAPH_STORE_ADDRESS,
     abi: STRIKEGRAPH_STORE_ABI,
     functionName: 'owner',
-  });
+    query: {
+      notifyOnChangeProps: ['data'],
+    }
+  }), []);
 
-  // 2. Read current balance of the smart contract
-  const { data: contractBalanceData, refetch: refetchBalance } = useBalance({
+  const { data: ownerAddress, isLoading: isReadingOwner } = useReadContract(ownerReadConfig);
+
+  // 2. Read current balance of the smart contract (memoized to prevent loops)
+  const balanceConfig = React.useMemo(() => ({
     address: STRIKEGRAPH_STORE_ADDRESS,
-  });
+    query: {
+      notifyOnChangeProps: ['data'],
+    }
+  }), []);
+
+  const { data: contractBalanceData, refetch: refetchBalance } = useBalance(balanceConfig);
 
   // 3. Write contract for withdrawLiquidity
   const { writeContract, data: txHash, error: writeError, isPending: isWritePending } = useWriteContract();
