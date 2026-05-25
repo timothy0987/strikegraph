@@ -1,6 +1,6 @@
 // Deployed StrikeGraphStore contract address on Hedera Testnet
 // IMPORTANT: Replace this placeholder with your actual deployed contract address on Hedera Testnet
-export const STRIKEGRAPH_STORE_ADDRESS = "0xe54e1436a88B1942B5e86389B6774A6Af0bCf2c7"; // Replace with your actual deployed contract address
+export const STRIKEGRAPH_STORE_ADDRESS = "0xB474241457D4b38C1BF1Ad0B43D7d012834F39D0"; // Replace with your actual deployed contract address
 
 export const STRIKEGRAPH_STORE_ABI = [
   {
@@ -167,5 +167,37 @@ export const STRIKEGRAPH_STORE_ABI = [
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidityWithdrawn",
+    "type": "event"
   }
 ];

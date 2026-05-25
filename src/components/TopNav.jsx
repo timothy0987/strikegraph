@@ -1,20 +1,33 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart } from 'lucide-react';
+import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useHederaNativeId } from '../hooks/useHederaNativeId';
+import { useReadContract } from 'wagmi';
+import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 
 const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
   const { nativeId } = useHederaNativeId(walletAddress);
 
+  // Read owner address from smart contract
+  const { data: ownerAddress } = useReadContract({
+    address: STRIKEGRAPH_STORE_ADDRESS,
+    abi: STRIKEGRAPH_STORE_ABI,
+    functionName: 'owner',
+  });
+
+  const showAdminTab = walletAddress && ownerAddress && walletAddress.toLowerCase() === ownerAddress.toLowerCase();
+
+  const isAdmin = gameState === 'admin';
   const isLeaderboard = gameState === 'leaderboard';
   const isMarket = gameState === 'market';
-  const isPlay = !isLeaderboard && !isMarket;
+  const isPlay = !isLeaderboard && !isMarket && !isAdmin;
 
   const handlePlayClick = () => setGameState('menu');
   const handleMarketClick = () => setGameState('market');
   const handleLeaderboardClick = () => setGameState('leaderboard');
+  const handleAdminClick = () => setGameState('admin');
 
   return (
     <nav className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-50 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
@@ -53,6 +66,23 @@ const TopNav = () => {
           >
             <Trophy size={18} /> LEADERBOARD
           </button>
+          {showAdminTab && (
+            <button
+              onClick={handleAdminClick}
+              className={`flex items-center gap-2 px-4 py-2 font-bold transition-all ${
+                isAdmin
+                  ? 'text-neonGreen border-b-2 border-neonGreen shadow-[0_4px_10px_-2px_rgba(57,255,20,0.5)]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+              style={isAdmin ? {
+                color: '#39FF14',
+                borderColor: '#39FF14',
+                textShadow: '0 0 5px #39FF14'
+              } : {}}
+            >
+              <Shield size={18} /> ADMIN
+            </button>
+          )}
         </div>
       </div>
 

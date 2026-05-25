@@ -7,6 +7,7 @@ import GameUI from './components/GameUI';
 import GameScene from './components/GameScene';
 import Leaderboard from './components/Leaderboard';
 import TopNav from './components/TopNav';
+import AdminPanel from './components/AdminPanel';
 
 const AppContent = () => {
   const { gameState, isPending, pendingMessage } = useGame();
@@ -28,6 +29,7 @@ const AppContent = () => {
           {gameState === 'staking' && <StakingMenu />}
           {gameState === 'market' && <TransferMarket />}
           {gameState === 'leaderboard' && <Leaderboard />}
+          {gameState === 'admin' && <AdminPanel />}
           {(gameState === 'aiming' || gameState === 'kicking' || gameState === 'result') && <GameUI />}
         </div>
       </div>

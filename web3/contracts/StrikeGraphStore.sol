@@ -29,6 +29,7 @@ contract StrikeGraphStore {
     event PlayerVariantPurchased(address indexed buyer, uint256 indexed tierId, uint256 amountPaid);
     event Staked(address indexed player, uint256 amount);
     event GameResolved(address indexed player, bool won, uint256 amount);
+    event LiquidityWithdrawn(address indexed owner, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not contract owner");
@@ -43,6 +44,18 @@ contract StrikeGraphStore {
      * @notice Deposit funds into the contract to maintain payout liquidity.
      */
     function fundContract() external payable onlyOwner {}
+
+    /**
+     * @notice Withdraw House funds from the contract balance (only contract owner).
+     */
+    function withdrawLiquidity(uint256 _amount) external onlyOwner {
+        require(address(this).balance >= _amount, "Insufficient contract balance");
+
+        (bool success, ) = owner.call{value: _amount}("");
+        require(success, "Withdraw transfer failed");
+
+        emit LiquidityWithdrawn(owner, _amount);
+    }
 
     /**
      * @notice Purchase a player variant tier.
