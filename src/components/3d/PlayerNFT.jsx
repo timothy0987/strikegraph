@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 const PlayerModel = ({ gameState, selectedPlayer }) => {
   const { scene, animations } = useGLTF('/player1.glb');
-  const { actions } = useAnimations(animations, scene);
+  const { ref, actions } = useAnimations(animations);
 
   useEffect(() => {
     if (!scene || !selectedPlayer?.color) return;
@@ -43,7 +43,7 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
     }
   }, [gameState, actions, animations]);
 
-  return <primitive object={scene} scale={[1, 1, 1]} />;
+  return <primitive ref={ref} object={scene} scale={[1, 1, 1]} />;
 };
 
 const PlayerNFT = ({ gameState, selectedPlayer }) => {

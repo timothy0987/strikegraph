@@ -28,9 +28,10 @@ export const useXP = () => {
     setXp(newXp);
     localStorage.setItem(storageKey, newXp.toString());
 
-    // Sync to Firebase
+    // Sync to Firebase (sanitize dots to underscores for paths)
     if (nativeId) {
-      set(ref(db, 'leaderboard/' + nativeId), newXp);
+      const safeNativeId = nativeId.replace(/\./g, '_');
+      set(ref(db, 'leaderboard/' + safeNativeId), newXp);
     }
   };
 

@@ -5,7 +5,7 @@ import * as THREE from 'three';
 
 const KeeperModel = ({ gameState, keeperTarget }) => {
   const { scene, animations } = useGLTF('/keeper1.glb');
-  const { actions } = useAnimations(animations, scene);
+  const { ref, actions } = useAnimations(animations);
 
   useEffect(() => {
     scene.traverse((object) => {
@@ -32,7 +32,7 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
     }
   }, [gameState, actions, animations, keeperTarget]);
 
-  return <primitive object={scene} scale={[1, 1, 1]} />;
+  return <primitive ref={ref} object={scene} scale={[1, 1, 1]} />;
 };
 
 const KeeperNFT = ({ keeperTarget, gameState, power = 1.0 }) => {

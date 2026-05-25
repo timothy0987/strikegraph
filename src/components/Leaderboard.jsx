@@ -16,11 +16,14 @@ const Leaderboard = () => {
     const unsubscribe = onValue(leaderboardRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const formattedData = Object.entries(data).map(([id, xpValue]) => ({
-          nativeId: id,
-          xp: xpValue,
-          isCurrentUser: id === nativeId
-        })).sort((a, b) => b.xp - a.xp);
+        const formattedData = Object.entries(data).map(([id, xpValue]) => {
+          const displayId = id.replace(/_/g, '.');
+          return {
+            nativeId: displayId,
+            xp: xpValue,
+            isCurrentUser: displayId === nativeId
+          };
+        }).sort((a, b) => b.xp - a.xp);
         
         setLeaderboardData(formattedData);
       }

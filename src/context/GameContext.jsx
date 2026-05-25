@@ -18,7 +18,17 @@ export const GameProvider = ({ children }) => {
   
   // Web3 Hooks
   const { address, isConnected: walletConnected } = useAccount();
-  const { data: balanceData } = useBalance({ address });
+  
+  // Memoize config to prevent infinite render/fetch loops
+  const balanceConfig = React.useMemo(() => ({
+    address,
+    query: {
+      enabled: !!address,
+      notifyOnChangeProps: ['data'],
+    }
+  }), [address]);
+
+  const { data: balanceData } = useBalance(balanceConfig);
   const balance = balanceData ? parseFloat(balanceData.formatted) : 0;
   const walletAddress = address || "";
 
