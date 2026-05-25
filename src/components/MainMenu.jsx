@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Coins } from 'lucide-react';
 
 const MainMenu = () => {
-  const { setGameState, selectedPlayer } = useGame();
+  const { setGameState, selectedPlayer, walletConnected } = useGame();
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm">
@@ -23,7 +23,13 @@ const MainMenu = () => {
 
         <div className="flex flex-col gap-4 w-full">
           <button 
-            onClick={() => setGameState('aiming')} 
+            onClick={() => {
+              if (!walletConnected) {
+                alert("Please connect your wallet first!");
+                return;
+              }
+              setGameState('staking');
+            }} 
             className="btn-neon w-full py-4 text-xl"
           >
             PLAY NOW
