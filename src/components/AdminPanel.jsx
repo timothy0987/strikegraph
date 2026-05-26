@@ -74,6 +74,7 @@ const AdminPanel = () => {
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'withdrawLiquidity',
       args: [parseEther(val.toString())],
+      gas: 300000n,
     });
   };
 

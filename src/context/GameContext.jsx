@@ -66,6 +66,7 @@ export const GameProvider = ({ children }) => {
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'stake',
       value: parseEther(amountHbar.toString()),
+      gas: 300000n,
     }, {
       onSuccess: (hash) => {
         setTxHash(hash);
@@ -90,6 +91,7 @@ export const GameProvider = ({ children }) => {
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'resolveGame',
       args: [won],
+      gas: 300000n,
     }, {
       onSuccess: (hash) => {
         setTxHash(hash);
