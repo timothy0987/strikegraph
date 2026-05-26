@@ -72,15 +72,15 @@ export const GameProvider = ({ children }) => {
 
   const { isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt(waitConfig);
 
-  const stakeOnChain = (amountHbar) => {
+  const stakeOnChain = (amount) => {
     setIsPending(true);
-    setPendingMessage(`Staking ${amountHbar} HBAR...`);
+    setPendingMessage(`Staking ${amount} HBAR...`);
     setCurrentAction('staking');
     writeContract({
       address: STRIKEGRAPH_STORE_ADDRESS,
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'stake',
-      value: parseEther(amountHbar.toString()),
+      value: parseEther(amount.toString()),
       type: 'legacy',
       gas: 500000n,
     }, {
