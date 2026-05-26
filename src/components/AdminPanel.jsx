@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther } from 'viem';
+import { parseEther, parseUnits } from 'viem';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 import { Landmark, ArrowDownCircle, ShieldCheck, AlertCircle } from 'lucide-react';
 
@@ -73,7 +73,7 @@ const AdminPanel = () => {
       address: STRIKEGRAPH_STORE_ADDRESS,
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'withdrawLiquidity',
-      args: [parseEther(val.toString())],
+      args: [parseUnits(val.toString(), 8)],
       type: 'legacy',
       gas: 500000n,
     });
@@ -115,7 +115,7 @@ const AdminPanel = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm p-4">
       <div className="glass-panel p-10 flex flex-col items-center gap-6 min-w-[450px] border border-neonGreen/20 shadow-[0_0_30px_rgba(57,255,20,0.1)] relative overflow-hidden">
-        
+
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 p-2 bg-neonGreen/10 border-b border-l border-neonGreen/20 rounded-bl-lg text-neonGreen flex items-center gap-1 text-[10px] font-mono tracking-widest">
           <ShieldCheck size={12} /> SECURED ADMIN MODE
@@ -145,7 +145,7 @@ const AdminPanel = () => {
             <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
               Withdrawal Amount (HBAR)
             </label>
-            <input 
+            <input
               type="number"
               min="0"
               step="any"
@@ -167,9 +167,9 @@ const AdminPanel = () => {
             </p>
           )}
 
-          <button 
+          <button
             disabled={isPending || !withdrawAmount}
-            onClick={handleWithdraw} 
+            onClick={handleWithdraw}
             className="btn-neon w-full py-4 text-xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] disabled:opacity-50 mt-2"
           >
             {isPending ? (

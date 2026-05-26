@@ -14,10 +14,10 @@ contract StrikeGraphStore {
     // 2 = Sniper
     // 3 = Legend
 
-    // HBAR prices (represented in 18-decimal EVM native currency equivalents)
-    uint256 public constant PRICE_STRIKER = 50 ether; // 50 HBAR
-    uint256 public constant PRICE_SNIPER = 100 ether; // 100 HBAR
-    uint256 public constant PRICE_LEGEND = 500 ether; // 500 HBAR
+    // HBAR prices (represented in 8-decimal EVM native currency equivalents - Tinybars)
+    uint256 public constant PRICE_STRIKER = 50 * 1e8; // 50 HBAR
+    uint256 public constant PRICE_SNIPER = 100 * 1e8; // 100 HBAR
+    uint256 public constant PRICE_LEGEND = 500 * 1e8; // 500 HBAR
 
     // Track owned player tier per address
     mapping(address => uint256) public ownedTiers;
@@ -91,7 +91,7 @@ contract StrikeGraphStore {
      * @notice Stake HBAR before playing (must be exactly 5 or 50 HBAR).
      */
     function stake() external payable {
-        require(msg.value >= 5 ether, "Minimum stake is 5 HBAR");
+        require(msg.value >= 5 * 1e8, "Minimum stake is 5 HBAR");
         require(activeStakes[msg.sender] == 0, "Already have an active stake");
 
         activeStakes[msg.sender] = msg.value;
