@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Coins } from 'lucide-react';
 
 const MainMenu = () => {
-  const { setGameState, selectedPlayer, walletConnected } = useGame();
+  const { setGameState, selectedPlayer, walletConnected, activeStake } = useGame();
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black/40 backdrop-blur-sm">
@@ -28,11 +28,16 @@ const MainMenu = () => {
                 alert("Please connect your wallet first!");
                 return;
               }
-              setGameState('staking');
+              if (activeStake > 0n) {
+                // If there is an active stake on-chain, bypass staking and resume game immediately
+                setGameState('aiming');
+              } else {
+                setGameState('staking');
+              }
             }} 
             className="btn-neon w-full py-4 text-xl"
           >
-            PLAY NOW
+            {activeStake > 0n ? 'RESUME GAME' : 'PLAY NOW'}
           </button>
           <button 
             onClick={() => setGameState('market')} 

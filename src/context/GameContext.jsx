@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { parseEther } from 'viem';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 
@@ -33,6 +33,21 @@ export const GameProvider = ({ children }) => {
   const { data: balanceData } = useBalance(balanceConfig);
   const balance = balanceData ? parseFloat(balanceData.formatted) : 0;
   const walletAddress = address || "";
+
+  // Read active stake on-chain to handle state recovery and prevent duplicate staking reverts
+  const activeStakeConfig = React.useMemo(() => ({
+    address: STRIKEGRAPH_STORE_ADDRESS,
+    abi: STRIKEGRAPH_STORE_ABI,
+    functionName: 'activeStakes',
+    args: walletAddress ? [walletAddress] : undefined,
+    query: {
+      enabled: !!walletAddress,
+      notifyOnChangeProps: ['data'],
+    }
+  }), [walletAddress]);
+
+  const { data: activeStakeData, refetch: refetchActiveStake } = useReadContract(activeStakeConfig);
+  const activeStake = activeStakeData ? activeStakeData : 0n;
 
   const [selectedPlayer, setSelectedPlayer] = useState(playerVariants[0]);
   
@@ -114,6 +129,11 @@ export const GameProvider = ({ children }) => {
       setPendingMessage("");
       setTxHash(null);
       
+      // Refetch the active stake state on-chain
+      if (refetchActiveStake) {
+        refetchActiveStake();
+      }
+      
       if (currentAction === 'staking') {
         setGameState('aiming');
       } else if (currentAction === 'resolving') {
@@ -121,7 +141,7 @@ export const GameProvider = ({ children }) => {
       }
       setCurrentAction(null);
     }
-  }, [isConfirmed, txHash, currentAction]);
+  }, [isConfirmed, txHash, currentAction, refetchActiveStake]);
 
   useEffect(() => {
     if (confirmError && txHash) {
@@ -139,6 +159,7 @@ export const GameProvider = ({ children }) => {
       gameState, setGameState,
       walletConnected,
       walletAddress, balance,
+      activeStake, refetchActiveStake,
       playerVariants, selectedPlayer, setSelectedPlayer,
       result, setResult,
       isPending, pendingMessage,
