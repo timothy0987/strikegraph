@@ -8,10 +8,10 @@ const GameContext = createContext();
 export const TREASURY_ADDRESS = "0x7cbff11440099db224d2b54d12e1116eb565c8fe";
 
 const playerVariants = [
-  { id: 'base', name: 'Base', price: 0, color: '#00FFFF', power: 1.0, accuracy: 1.0 },
-  { id: 'striker', name: 'Striker', price: 50, color: '#FF0033', power: 1.5, accuracy: 1.0 },
-  { id: 'sniper', name: 'Sniper', price: 100, color: '#00FF33', power: 1.0, accuracy: 1.5 },
-  { id: 'legend', name: 'Legend', price: 500, color: '#FFD700', power: 1.8, accuracy: 1.8 }
+  { id: 'base', tier: 0, name: 'Base', price: 0, color: '#00FFFF', power: 1.0, accuracy: 1.0 },
+  { id: 'striker', tier: 1, name: 'Striker', price: 50, color: '#FF0033', power: 1.5, accuracy: 1.0 },
+  { id: 'sniper', tier: 2, name: 'Sniper', price: 100, color: '#00FF33', power: 1.0, accuracy: 1.5 },
+  { id: 'legend', tier: 3, name: 'Legend', price: 500, color: '#FFD700', power: 1.8, accuracy: 1.8 }
 ];
 
 export const GameProvider = ({ children }) => {
@@ -49,6 +49,29 @@ export const GameProvider = ({ children }) => {
   const { data: activeStakeData, refetch: refetchActiveStake } = useReadContract(activeStakeConfig);
   const activeStake = activeStakeData ? activeStakeData : 0n;
 
+  // Read owned player tier on-chain
+  const ownedTiersConfig = React.useMemo(() => ({
+    address: STRIKEGRAPH_STORE_ADDRESS,
+    abi: STRIKEGRAPH_STORE_ABI,
+    functionName: 'ownedTiers',
+    args: walletAddress ? [walletAddress] : undefined,
+    query: {
+      enabled: !!walletAddress,
+      notifyOnChangeProps: ['data'],
+    }
+  }), [walletAddress]);
+
+  const { data: ownedTierData, refetch: refetchOwnedTier } = useReadContract(ownedTiersConfig);
+  const [userOwnedTier, setUserOwnedTier] = useState(0);
+
+  useEffect(() => {
+    if (ownedTierData !== undefined) {
+      setUserOwnedTier(Number(ownedTierData));
+    } else {
+      setUserOwnedTier(0);
+    }
+  }, [ownedTierData]);
+
   const [selectedPlayer, setSelectedPlayer] = useState(playerVariants[0]);
   
   // Game Resolution
@@ -58,7 +81,7 @@ export const GameProvider = ({ children }) => {
   const [isPending, setIsPending] = useState(false);
   const [pendingMessage, setPendingMessage] = useState("");
   const [txHash, setTxHash] = useState(null);
-  const [currentAction, setCurrentAction] = useState(null); // 'staking' | 'resolving'
+  const [currentAction, setCurrentAction] = useState(null); // 'staking' | 'resolving' | 'purchasing'
 
   const { writeContract, data: writeHash, error: writeError } = useWriteContract();
   
@@ -90,6 +113,33 @@ export const GameProvider = ({ children }) => {
       },
       onError: (err) => {
         console.error("Stake transaction failed", err);
+        setIsPending(false);
+        setPendingMessage("");
+        setCurrentAction(null);
+        alert("Transaction failed: " + (err.shortMessage || err.message));
+      }
+    });
+  };
+
+  const purchaseTierOnChain = (tierId, priceInHbar) => {
+    setIsPending(true);
+    setPendingMessage(`Purchasing Player Tier...`);
+    setCurrentAction('purchasing');
+    writeContract({
+      address: STRIKEGRAPH_STORE_ADDRESS,
+      abi: STRIKEGRAPH_STORE_ABI,
+      functionName: 'buyPlayerVariant',
+      args: [BigInt(tierId)],
+      value: parseEther(priceInHbar.toString()),
+      type: 'legacy',
+      gas: 500000n,
+    }, {
+      onSuccess: (hash) => {
+        setTxHash(hash);
+        setPendingMessage("Confirming purchase transaction...");
+      },
+      onError: (err) => {
+        console.error("Purchase transaction failed", err);
         setIsPending(false);
         setPendingMessage("");
         setCurrentAction(null);
@@ -136,6 +186,11 @@ export const GameProvider = ({ children }) => {
         refetchActiveStake();
       }
       
+      // Refetch the owned tiers on-chain
+      if (refetchOwnedTier) {
+        refetchOwnedTier();
+      }
+      
       if (currentAction === 'staking') {
         setGameState('aiming');
       } else if (currentAction === 'resolving') {
@@ -143,7 +198,7 @@ export const GameProvider = ({ children }) => {
       }
       setCurrentAction(null);
     }
-  }, [isConfirmed, txHash, currentAction, refetchActiveStake]);
+  }, [isConfirmed, txHash, currentAction, refetchActiveStake, refetchOwnedTier]);
 
   useEffect(() => {
     if (confirmError && txHash) {
@@ -165,7 +220,8 @@ export const GameProvider = ({ children }) => {
       playerVariants, selectedPlayer, setSelectedPlayer,
       result, setResult,
       isPending, pendingMessage,
-      stakeOnChain, resolveGameOnChain
+      stakeOnChain, resolveGameOnChain,
+      userOwnedTier, purchaseTierOnChain
     }}>
       {children}
     </GameContext.Provider>
@@ -173,3 +229,4 @@ export const GameProvider = ({ children }) => {
 };
 
 export const useGame = () => useContext(GameContext);
+

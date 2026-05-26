@@ -20,6 +20,7 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
           // Safely mutate the existing material, DO NOT clone it
           child.material.emissive = targetColor;
           child.material.emissiveIntensity = 0.5;
+          child.material.needsUpdate = true;
         }
       }
     });

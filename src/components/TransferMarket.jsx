@@ -3,10 +3,24 @@ import { useGame } from '../context/GameContext';
 import { ChevronLeft, Zap, Target } from 'lucide-react';
 
 const TransferMarket = () => {
-  const { setGameState, playerVariants, selectedPlayer, setSelectedPlayer } = useGame();
+  const { 
+    setGameState, 
+    playerVariants, 
+    selectedPlayer, 
+    setSelectedPlayer, 
+    userOwnedTier, 
+    purchaseTierOnChain, 
+    isPending 
+  } = useGame();
 
   const handleEquip = (variant) => {
+    if (isPending) return;
     setSelectedPlayer(variant);
+  };
+
+  const handlePurchase = (variant) => {
+    if (isPending) return;
+    purchaseTierOnChain(variant.tier, variant.price);
   };
 
   return (
@@ -14,7 +28,8 @@ const TransferMarket = () => {
       <div className="absolute top-8 left-8">
         <button 
           onClick={() => setGameState('menu')}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          disabled={isPending}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft /> Back to Menu
         </button>
@@ -29,6 +44,7 @@ const TransferMarket = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
           {playerVariants.map((variant) => {
             const isEquipped = selectedPlayer.id === variant.id;
+            const isOwned = userOwnedTier >= variant.tier;
             return (
               <div key={variant.id} style={{ borderColor: variant.color, boxShadow: isEquipped ? `0 0 20px ${variant.color}80` : 'none' }} className={`p-6 rounded-xl border-2 flex flex-col items-center gap-4 bg-gray-900/60 backdrop-blur-sm relative overflow-hidden transition-all duration-300 hover:scale-105`}>
                 <h3 style={{ color: variant.color }} className="text-2xl font-black uppercase tracking-wider">{variant.name}</h3>
@@ -51,13 +67,23 @@ const TransferMarket = () => {
                     <div style={{ color: variant.color, textShadow: `0 0 10px ${variant.color}` }} className="text-center font-bold tracking-widest py-2 border-2 border-transparent">
                       EQUIPPED
                     </div>
-                  ) : (
+                  ) : isOwned ? (
                     <button 
                       onClick={() => handleEquip(variant)}
+                      disabled={isPending}
                       style={{ backgroundColor: `${variant.color}20`, borderColor: variant.color, color: variant.color }}
-                      className="w-full font-bold text-sm py-2 rounded-lg border hover:bg-opacity-40 transition-colors tracking-widest"
+                      className="w-full font-bold text-sm py-2 rounded-lg border hover:bg-opacity-40 transition-colors tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       EQUIP
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => handlePurchase(variant)}
+                      disabled={isPending}
+                      style={{ backgroundColor: `${variant.color}20`, borderColor: variant.color, color: variant.color }}
+                      className="w-full font-bold text-sm py-2 rounded-lg border hover:bg-opacity-40 transition-colors tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isPending ? 'PURCHASING...' : 'PURCHASE'}
                     </button>
                   )}
                 </div>
