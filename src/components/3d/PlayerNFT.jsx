@@ -1,9 +1,10 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const PlayerModel = ({ gameState, selectedPlayer }) => {
-  const { scene, animations } = useGLTF('/player1.glb');
+  const { scene, animations, nodes } = useGLTF('/player1.glb');
   const { ref, actions } = useAnimations(animations);
 
   useEffect(() => {
@@ -25,6 +26,44 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
       }
     });
   }, [scene, selectedPlayer?.color]); // STRICT dependencies to prevent infinite loops
+
+  const bonesRef = useRef({});
+
+  useEffect(() => {
+    if (!nodes) return;
+    const findBone = (suffix) => {
+      const key = Object.keys(nodes).find(
+        (k) => k.toLowerCase().endsWith(suffix.toLowerCase())
+      );
+      return key ? nodes[key] : null;
+    };
+    bonesRef.current = {
+      leftArm: findBone('leftarm'),
+      rightArm: findBone('rightarm'),
+      leftShoulder: findBone('leftshoulder'),
+      rightShoulder: findBone('rightshoulder'),
+    };
+  }, [nodes]);
+
+  useFrame(() => {
+    const { leftArm, rightArm, leftShoulder, rightShoulder } = bonesRef.current;
+    
+    // Apply downward rotations (Z-axis rotation for T-pose lowering)
+    if (leftArm) {
+      leftArm.rotation.z = -Math.PI / 3;
+    }
+    if (rightArm) {
+      rightArm.rotation.z = Math.PI / 3;
+    }
+
+    // Minor downward rotation for shoulders to look natural
+    if (leftShoulder) {
+      leftShoulder.rotation.z = -Math.PI / 18;
+    }
+    if (rightShoulder) {
+      rightShoulder.rotation.z = Math.PI / 18;
+    }
+  });
 
   useEffect(() => {
     if (!animations || !animations.length || !actions) return;
