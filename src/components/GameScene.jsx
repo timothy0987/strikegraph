@@ -89,34 +89,37 @@ const GameScene = () => {
     let finalAimX = aimX + reducedVariance;
     finalAimX = Math.max(Math.min(finalAimX, 2.5), -2.5); // clamp
 
+    // Determine goal/save outcome based on economy rate
+    const baseWinChance = 0.30;
+    const finalWinChance = baseWinChance * (selectedPlayer?.accuracy || 1.0);
+    const isGoalOutcome = Math.random() < finalWinChance;
+
     // Set target zone object for Football.jsx
     setTargetZone({ position: [finalAimX, 0.5, -4.5] });
     
-    // AI Keeper decides randomly between -2.5 and 2.5
-    const keeperRandomX = (Math.random() * 5) - 2.5;
-    setKeeperTarget({ position: [keeperRandomX, 0.5, -4.5] });
+    // Choose keeper's X position based on the outcome
+    let keeperX;
+    if (isGoalOutcome) {
+      // Dive away: if ball is on left, dive right; if ball is on right, dive left
+      if (finalAimX < 0) {
+        keeperX = 0.9 + Math.random() * 1.6;
+      } else {
+        keeperX = -0.9 - Math.random() * 1.6;
+      }
+    } else {
+      // Dive to the same spot to save it
+      keeperX = finalAimX;
+    }
     
+    setKeeperTarget({ position: [keeperX, 0.5, -4.5] });
     setGameState('kicking');
   };
 
   const handleKickComplete = () => {
     if (gameState !== 'kicking') return;
     
-    let isGoal = false;
-    
     const dist = Math.abs(targetZone.position[0] - keeperTarget.position[0]);
-    if (dist > 0.8) { 
-      isGoal = true;
-    } else {
-      // If keeper is close, chance to save based on power (more power = less likely to save)
-      const saveChance = KEEPER_SAVE_STAT / (selectedPlayer?.power || 1.0);
-      const roll = Math.random() * 100;
-      if (roll > saveChance) {
-        isGoal = true;
-      } else {
-        isGoal = false;
-      }
-    }
+    const isGoal = dist > 0.8;
 
     addXP(50);
     setResult(isGoal ? 'GOAL' : 'SAVED');
