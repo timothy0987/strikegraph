@@ -17,6 +17,8 @@ const playerVariants = [
 export const GameProvider = ({ children }) => {
   // 'menu', 'staking', 'aiming', 'kicking', 'result'
   const [gameState, setGameState] = useState('menu');
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const triggerReset = () => setResetTrigger((prev) => prev + 1);
   
   // Web3 Hooks
   const { address, isConnected: walletConnected } = useAccount();
@@ -221,7 +223,8 @@ export const GameProvider = ({ children }) => {
       result, setResult,
       isPending, pendingMessage,
       stakeOnChain, resolveGameOnChain,
-      userOwnedTier, purchaseTierOnChain
+      userOwnedTier, purchaseTierOnChain,
+      resetTrigger, triggerReset
     }}>
       {children}
     </GameContext.Provider>

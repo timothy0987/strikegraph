@@ -79,7 +79,7 @@ const CameraDirector = ({ gameState, isGoal, targetZone }) => {
 };
 
 const GameScene = () => {
-  const { gameState, setGameState, selectedPlayer, setResult } = useGame();
+  const { gameState, setGameState, selectedPlayer, setResult, resetTrigger } = useGame();
   const { addXP } = useXP();
   
   const [aimX, setAimX] = useState(0);
@@ -87,6 +87,16 @@ const GameScene = () => {
   const [keeperTarget, setKeeperTarget] = useState(null);
   const [isGoal, setIsGoal] = useState(false);
   const keeperRef = useRef();
+  const lastResetTrigger = useRef(0);
+
+  useEffect(() => {
+    if (resetTrigger > lastResetTrigger.current) {
+      lastResetTrigger.current = resetTrigger;
+      setTargetZone(null);
+      setKeeperTarget(null);
+      setAimX(0);
+    }
+  }, [resetTrigger]);
 
   useEffect(() => {
     if (gameState !== 'aiming') return;
@@ -196,8 +206,8 @@ const GameScene = () => {
         <Goalpost />
         
         <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
-        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} />
-        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} />
+        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} resetTrigger={resetTrigger} />
+        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} resetTrigger={resetTrigger} />
 
         {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
         

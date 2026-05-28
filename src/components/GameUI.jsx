@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Share2, ArrowRight } from 'lucide-react';
 
 const GameUI = () => {
-  const { gameState, result, resolveGameOnChain } = useGame();
+  const { gameState, result, resolveGameOnChain, triggerReset } = useGame();
 
   const getTwitterShareUrl = () => {
     const gameUrl = "https://strikegraph-ai.vercel.app";
@@ -48,7 +48,10 @@ const GameUI = () => {
             </a>
             
             <button 
-              onClick={() => resolveGameOnChain(result === 'GOAL')}
+              onClick={() => {
+                triggerReset();
+                resolveGameOnChain(result === 'GOAL');
+              }}
               className="btn-neon flex items-center gap-2 px-8 py-3 font-bold text-sm bg-neonGreen border-neonGreen text-black hover:scale-105 transition-all shadow-[0_0_15px_rgba(57,255,20,0.3)]"
             >
               CONTINUE <ArrowRight size={16} />

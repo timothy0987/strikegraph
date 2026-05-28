@@ -3,9 +3,10 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
-const KeeperModel = ({ gameState, keeperTarget, keeperRef }) => {
+const KeeperModel = ({ gameState, keeperTarget, keeperRef, resetTrigger }) => {
   const { scene, animations, nodes } = useGLTF('/keeper2.glb');
   const { ref, actions } = useAnimations(animations);
+  const lastResetTrigger = useRef(0);
 
   // Expose nodes and scene so other components can access the bone world coordinates
   useEffect(() => {
@@ -76,7 +77,16 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef }) => {
     const animName = animations[0].name;
     const action = actions[animName];
 
+    let shouldReset = false;
+    if (resetTrigger > lastResetTrigger.current) {
+      lastResetTrigger.current = resetTrigger;
+      shouldReset = true;
+    }
     if (gameState === 'aiming') {
+      shouldReset = true;
+    }
+
+    if (shouldReset) {
       action.reset().play();
       action.paused = true; 
       action.time = 0; 
@@ -85,26 +95,36 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef }) => {
       action.reset().setLoop(THREE.LoopOnce).clampWhenFinished = true;
       action.play();
     }
-  }, [gameState, actions, animations, keeperTarget]);
+  }, [gameState, actions, animations, keeperTarget, resetTrigger]);
 
   const scaleX = keeperTarget && keeperTarget.position[0] < 0 ? -1 : 1;
   return <primitive ref={ref} object={scene} scale={[scaleX, 1, 1]} />;
 };
 
-const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef }) => {
+const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef, resetTrigger }) => {
   const ref = useRef();
   const startPos = new THREE.Vector3(0, 0, -4.5);
   const targetPos = useRef(new THREE.Vector3(0, 0, -4.5));
+  const lastResetTrigger = useRef(0);
 
   useEffect(() => {
+    let shouldReset = false;
+    if (resetTrigger > lastResetTrigger.current) {
+      lastResetTrigger.current = resetTrigger;
+      shouldReset = true;
+    }
     if (gameState === 'aiming') {
+      shouldReset = true;
+    }
+
+    if (shouldReset) {
       targetPos.current.copy(startPos);
       ref.current.position.copy(startPos);
     }
     if (gameState === 'kicking' && keeperTarget) {
       targetPos.current.set(keeperTarget.position[0], 0, -4.5);
     }
-  }, [gameState, keeperTarget]);
+  }, [gameState, keeperTarget, resetTrigger]);
 
   useFrame((state, delta) => {
     if (gameState === 'kicking' || gameState === 'result') {
@@ -115,7 +135,7 @@ const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef }) => {
   return (
     <group ref={ref} position={[0, 0, -4.5]} rotation={[0, 0, 0]}>
       <Suspense fallback={null}>
-        <KeeperModel gameState={gameState} keeperTarget={keeperTarget} keeperRef={keeperRef} />
+        <KeeperModel gameState={gameState} keeperTarget={keeperTarget} keeperRef={keeperRef} resetTrigger={resetTrigger} />
       </Suspense>
     </group>
   );

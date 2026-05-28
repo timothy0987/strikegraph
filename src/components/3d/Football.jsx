@@ -131,11 +131,12 @@ const createSoccerBallTexture = () => {
   return canvas;
 };
 
-const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal = false, keeperRef }) => {
+const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal = false, keeperRef, resetTrigger }) => {
   const ref = useRef();
   const startPos = new THREE.Vector3(0, 0.5, 3);
   const targetPos = useRef(new THREE.Vector3(0, 0.5, 3));
   const progress = useRef(0);
+  const lastResetTrigger = useRef(0);
 
   // Generate procedural texture once and clean it up on unmount
   const ballTexture = useMemo(() => {
@@ -152,20 +153,30 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
   }, [ballTexture]);
 
   useEffect(() => {
-    if (gameState === 'aiming' || gameState === 'menu') {
+    let shouldReset = false;
+    if (resetTrigger > lastResetTrigger.current) {
+      lastResetTrigger.current = resetTrigger;
+      shouldReset = true;
+    }
+    if (gameState === 'aiming') {
+      shouldReset = true;
+    }
+
+    if (shouldReset) {
       ref.current.position.copy(startPos);
       targetPos.current.copy(startPos);
       progress.current = 0;
       // Reset rotation
       ref.current.rotation.set(0, 0, 0);
     }
+
     if (gameState === 'kicking' && targetZone) {
       // For goals, let the ball fly past the keeper to Z = -5.2 (deep inside the net)
       // For saves, target the keeper's depth at Z = -4.5
       const targetZ = isGoal ? -5.2 : -4.5;
       targetPos.current.set(targetZone.position[0], targetZone.position[1], targetZ);
     }
-  }, [gameState, targetZone, isGoal]);
+  }, [gameState, targetZone, isGoal, resetTrigger]);
 
   useFrame((state, delta) => {
     const isSaved = !isGoal;
