@@ -4,8 +4,18 @@ import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
 const KeeperModel = ({ gameState, keeperTarget }) => {
-  const { scene, animations, nodes } = useGLTF('/keeper1.glb');
+  const { scene, animations, nodes } = useGLTF('/keeper2.glb');
   const { ref, actions } = useAnimations(animations);
+
+  // Play the first animation sequence on loop when component mounts
+  useEffect(() => {
+    if (!animations || !animations.length || !actions) return;
+    const animName = animations[0].name;
+    const action = actions[animName];
+    if (action) {
+      action.reset().setLoop(THREE.LoopRepeat).play();
+    }
+  }, [actions, animations]);
 
   useEffect(() => {
     scene.traverse((object) => {
@@ -103,6 +113,6 @@ const KeeperNFT = ({ keeperTarget, gameState, power = 1.0 }) => {
   );
 };
 
-useGLTF.preload('/keeper1.glb');
+useGLTF.preload('/keeper2.glb');
 
 export default KeeperNFT;

@@ -4,8 +4,18 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const PlayerModel = ({ gameState, selectedPlayer }) => {
-  const { scene, animations, nodes } = useGLTF('/player1.glb');
+  const { scene, animations, nodes } = useGLTF('/player2.glb');
   const { ref, actions } = useAnimations(animations);
+
+  // Play the first animation sequence on loop when component mounts
+  useEffect(() => {
+    if (!animations || !animations.length || !actions) return;
+    const animName = animations[0].name;
+    const action = actions[animName];
+    if (action) {
+      action.reset().setLoop(THREE.LoopRepeat).play();
+    }
+  }, [actions, animations]);
 
   useEffect(() => {
     if (!scene || !selectedPlayer?.color) return;
@@ -18,10 +28,13 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
         child.castShadow = true;
         child.receiveShadow = true;
         if (child.material) {
-          // Safely mutate the existing material, DO NOT clone it
-          child.material.emissive = targetColor;
-          child.material.emissiveIntensity = 0.5;
-          child.material.needsUpdate = true;
+          const materials = Array.isArray(child.material) ? child.material : [child.material];
+          materials.forEach((mat) => {
+            // Safely mutate the existing material, DO NOT clone it
+            mat.emissive = targetColor;
+            mat.emissiveIntensity = 0.5;
+            mat.needsUpdate = true;
+          });
         }
       }
     });
@@ -96,6 +109,6 @@ const PlayerNFT = ({ gameState, selectedPlayer }) => {
   );
 };
 
-useGLTF.preload('/player1.glb');
+useGLTF.preload('/player2.glb');
 
 export default PlayerNFT;
