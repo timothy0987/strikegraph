@@ -3,9 +3,16 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
-const KeeperModel = ({ gameState, keeperTarget }) => {
+const KeeperModel = ({ gameState, keeperTarget, keeperRef }) => {
   const { scene, animations, nodes } = useGLTF('/keeper2.glb');
   const { ref, actions } = useAnimations(animations);
+
+  // Expose nodes and scene so other components can access the bone world coordinates
+  useEffect(() => {
+    if (nodes && keeperRef) {
+      keeperRef.current = { nodes, scene };
+    }
+  }, [nodes, scene, keeperRef]);
 
   // Play the first animation sequence on loop when component mounts
   useEffect(() => {
@@ -83,7 +90,7 @@ const KeeperModel = ({ gameState, keeperTarget }) => {
   return <primitive ref={ref} object={scene} scale={[1, 1, 1]} />;
 };
 
-const KeeperNFT = ({ keeperTarget, gameState, power = 1.0 }) => {
+const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef }) => {
   const ref = useRef();
   const startPos = new THREE.Vector3(0, 0, -4.5);
   const targetPos = useRef(new THREE.Vector3(0, 0, -4.5));
@@ -107,7 +114,7 @@ const KeeperNFT = ({ keeperTarget, gameState, power = 1.0 }) => {
   return (
     <group ref={ref} position={[0, 0, -4.5]} rotation={[0, 0, 0]}>
       <Suspense fallback={null}>
-        <KeeperModel gameState={gameState} keeperTarget={keeperTarget} />
+        <KeeperModel gameState={gameState} keeperTarget={keeperTarget} keeperRef={keeperRef} />
       </Suspense>
     </group>
   );

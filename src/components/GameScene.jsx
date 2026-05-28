@@ -43,6 +43,8 @@ const GameScene = () => {
   const [aimX, setAimX] = useState(0);
   const [targetZone, setTargetZone] = useState(null);
   const [keeperTarget, setKeeperTarget] = useState(null);
+  const [isGoal, setIsGoal] = useState(false);
+  const keeperRef = useRef();
 
   useEffect(() => {
     if (gameState !== 'aiming') return;
@@ -93,6 +95,7 @@ const GameScene = () => {
     const baseWinChance = 0.30;
     const finalWinChance = baseWinChance * (selectedPlayer?.accuracy || 1.0);
     const isGoalOutcome = Math.random() < finalWinChance;
+    setIsGoal(isGoalOutcome);
 
     // Set target zone object for Football.jsx
     setTargetZone({ position: [finalAimX, 0.5, -4.5] });
@@ -118,9 +121,6 @@ const GameScene = () => {
   const handleKickComplete = () => {
     if (gameState !== 'kicking') return;
     
-    const dist = Math.abs(targetZone.position[0] - keeperTarget.position[0]);
-    const isGoal = dist > 0.8;
-
     addXP(50);
     setResult(isGoal ? 'GOAL' : 'SAVED');
     setGameState('result');
@@ -148,8 +148,8 @@ const GameScene = () => {
         <Goalpost />
         
         <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
-        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} />
-        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} />
+        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} />
+        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} />
 
         {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
         
