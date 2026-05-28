@@ -160,9 +160,12 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
       ref.current.rotation.set(0, 0, 0);
     }
     if (gameState === 'kicking' && targetZone) {
-      targetPos.current.copy(targetZone.position);
+      // For goals, let the ball fly past the keeper to Z = -5.2 (deep inside the net)
+      // For saves, target the keeper's depth at Z = -4.5
+      const targetZ = isGoal ? -5.2 : -4.5;
+      targetPos.current.set(targetZone.position[0], targetZone.position[1], targetZ);
     }
-  }, [gameState, targetZone]);
+  }, [gameState, targetZone, isGoal]);
 
   useFrame((state, delta) => {
     const isSaved = !isGoal;
@@ -170,8 +173,25 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
     if (gameState === 'kicking') {
       // If a save occurs and the ball has reached near the keeper (progress >= 0.85), attach it to the keeper's hands
       if (isSaved && progress.current >= 0.85) {
-        const handName = targetPos.current.x < 0 ? 'mixamorig:LeftHand' : 'mixamorig:RightHand';
-        const hand = keeperRef.current?.nodes[handName] || keeperRef.current?.nodes['mixamorig:LeftHand'] || keeperRef.current?.nodes['mixamorig:RightHand'];
+        let hand = null;
+        const leftHand = keeperRef.current?.nodes['mixamorig:LeftHand'];
+        const rightHand = keeperRef.current?.nodes['mixamorig:RightHand'];
+        
+        if (leftHand && rightHand) {
+          leftHand.updateMatrixWorld(true);
+          rightHand.updateMatrixWorld(true);
+          const leftPos = new THREE.Vector3();
+          const rightPos = new THREE.Vector3();
+          leftHand.getWorldPosition(leftPos);
+          rightHand.getWorldPosition(rightPos);
+          
+          const distLeft = leftPos.distanceTo(targetPos.current);
+          const distRight = rightPos.distanceTo(targetPos.current);
+          hand = distLeft < distRight ? leftHand : rightHand;
+        } else {
+          hand = leftHand || rightHand;
+        }
+
         if (hand) {
           hand.updateMatrixWorld(true);
           const worldPos = new THREE.Vector3();
@@ -205,8 +225,25 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
       }
     } else if (gameState === 'result' && isSaved) {
       // Keep the ball locked to the goalkeeper's hands on the result/save screens so it doesn't freeze in midair
-      const handName = targetPos.current.x < 0 ? 'mixamorig:LeftHand' : 'mixamorig:RightHand';
-      const hand = keeperRef.current?.nodes[handName] || keeperRef.current?.nodes['mixamorig:LeftHand'] || keeperRef.current?.nodes['mixamorig:RightHand'];
+      let hand = null;
+      const leftHand = keeperRef.current?.nodes['mixamorig:LeftHand'];
+      const rightHand = keeperRef.current?.nodes['mixamorig:RightHand'];
+      
+      if (leftHand && rightHand) {
+        leftHand.updateMatrixWorld(true);
+        rightHand.updateMatrixWorld(true);
+        const leftPos = new THREE.Vector3();
+        const rightPos = new THREE.Vector3();
+        leftHand.getWorldPosition(leftPos);
+        rightHand.getWorldPosition(rightPos);
+        
+        const distLeft = leftPos.distanceTo(targetPos.current);
+        const distRight = rightPos.distanceTo(targetPos.current);
+        hand = distLeft < distRight ? leftHand : rightHand;
+      } else {
+        hand = leftHand || rightHand;
+      }
+
       if (hand) {
         hand.updateMatrixWorld(true);
         const worldPos = new THREE.Vector3();

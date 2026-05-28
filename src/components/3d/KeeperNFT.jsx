@@ -87,7 +87,8 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef }) => {
     }
   }, [gameState, actions, animations, keeperTarget]);
 
-  return <primitive ref={ref} object={scene} scale={[1, 1, 1]} />;
+  const scaleX = keeperTarget && keeperTarget.position[0] < 0 ? -1 : 1;
+  return <primitive ref={ref} object={scene} scale={[scaleX, 1, 1]} />;
 };
 
 const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef }) => {

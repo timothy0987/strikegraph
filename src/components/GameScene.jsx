@@ -146,7 +146,10 @@ const GameScene = () => {
     let keeperX;
     if (isGoalOutcome) {
       // Dive away: if ball is on left, dive right; if ball is on right, dive left
-      if (finalAimX < 0) {
+      // If the shot is dead center, pick left or right randomly
+      if (Math.abs(finalAimX) < 0.2) {
+        keeperX = Math.random() < 0.5 ? (0.9 + Math.random() * 1.6) : (-0.9 - Math.random() * 1.6);
+      } else if (finalAimX < 0) {
         keeperX = 0.9 + Math.random() * 1.6;
       } else {
         keeperX = -0.9 - Math.random() * 1.6;
