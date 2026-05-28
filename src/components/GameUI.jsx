@@ -5,16 +5,20 @@ import { Share2, ArrowRight } from 'lucide-react';
 const GameUI = () => {
   const { gameState, result, resolveGameOnChain } = useGame();
 
-  const handleShareReplay = () => {
-    // Mock sharing by copying text and showing feedback
-    const dummyLink = "https://strikegraph-ai.vercel.app/replay/" + Math.random().toString(36).substring(7);
-    navigator.clipboard.writeText(`Check out my penalty kick replay on StrikeGraph! ${dummyLink}`)
-      .then(() => {
-        alert('Cinematic replay share link copied to clipboard!');
-      })
-      .catch(() => {
-        alert('Replay saved! Share Link: ' + dummyLink);
-      });
+  const getTwitterShareUrl = () => {
+    const gameUrl = "https://strikegraph-ai.vercel.app";
+    let text = "";
+    let hashtags = "";
+    
+    if (result === 'GOAL') {
+      text = "Just scored an absolute banger against the StrikeGraph AI! ⚽ Play the game and try to beat my high score on Hedera: ";
+      hashtags = "StrikeGraph,Hedera,PlayToEarn";
+    } else {
+      text = "The StrikeGraph AI goalie just made an insane save against me... 🧤 I need that 1.8x Accuracy NFT for round two: ";
+      hashtags = "StrikeGraph,Hedera,PlayToOwn";
+    }
+    
+    return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(gameUrl)}&hashtags=${hashtags}`;
   };
 
   return (
@@ -34,12 +38,14 @@ const GameUI = () => {
           </h1>
           
           <div className="flex gap-4 mt-6">
-            <button 
-              onClick={handleShareReplay}
-              className="btn-premium flex items-center gap-2 px-6 py-3 font-bold text-sm bg-neonPink border-neonPink text-white hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,16,240,0.3)]"
+            <a 
+              href={getTwitterShareUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-premium flex items-center gap-2 px-6 py-3 font-bold text-sm bg-neonPink border-neonPink text-white hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,16,240,0.3)] decoration-none"
             >
               <Share2 size={16} /> SHARE REPLAY
-            </button>
+            </a>
             
             <button 
               onClick={() => resolveGameOnChain(result === 'GOAL')}
