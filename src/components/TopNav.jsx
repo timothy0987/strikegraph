@@ -27,11 +27,13 @@ const TopNav = () => {
   const isAdmin = gameState === 'admin';
   const isLeaderboard = gameState === 'leaderboard';
   const isMarket = gameState === 'market';
-  const isPlay = !isLeaderboard && !isMarket && !isAdmin;
+  const isDefend = gameState === 'defend';
+  const isPlay = !isLeaderboard && !isMarket && !isAdmin && !isDefend;
 
   const handlePlayClick = () => setGameState('menu');
   const handleMarketClick = () => setGameState('market');
   const handleLeaderboardClick = () => setGameState('leaderboard');
+  const handleDefendClick = () => setGameState('defend');
   const handleAdminClick = () => setGameState('admin');
 
   return (
@@ -60,6 +62,21 @@ const TopNav = () => {
             }`}
           >
             <ShoppingCart size={18} /> MARKET
+          </button>
+          <button
+            onClick={handleDefendClick}
+            className={`flex items-center gap-2 px-4 py-2 font-bold transition-all ${
+              isDefend
+                ? 'text-[#FF5F1F] border-b-2 border-[#FF5F1F] shadow-[0_4px_10px_-2px_rgba(255,95,31,0.5)]'
+                : 'text-gray-400 hover:text-white'
+            }`}
+            style={isDefend ? {
+              color: '#FF5F1F',
+              borderColor: '#FF5F1F',
+              textShadow: '0 0 5px #FF5F1F'
+            } : {}}
+          >
+            <Shield size={18} /> DEFEND
           </button>
           <button
             onClick={handleLeaderboardClick}

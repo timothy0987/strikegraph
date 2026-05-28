@@ -8,6 +8,7 @@ import GameScene from './components/GameScene';
 import Leaderboard from './components/Leaderboard';
 import TopNav from './components/TopNav';
 import AdminPanel from './components/AdminPanel';
+import Defend from './components/Defend';
 
 const AppContent = () => {
   const { gameState, isPending, pendingMessage } = useGame();
@@ -16,7 +17,7 @@ const AppContent = () => {
     <div className="relative w-screen h-screen pt-[72px]">
       <TopNav />
       {/* 3D Canvas Background layer */}
-      {gameState !== 'leaderboard' && (
+      {gameState !== 'leaderboard' && gameState !== 'defend' && (
         <div className="absolute inset-0 z-0">
           <GameScene />
         </div>
@@ -29,6 +30,7 @@ const AppContent = () => {
           {gameState === 'staking' && <StakingMenu />}
           {gameState === 'market' && <TransferMarket />}
           {gameState === 'leaderboard' && <Leaderboard />}
+          {gameState === 'defend' && <Defend />}
           {gameState === 'admin' && <AdminPanel />}
           {(gameState === 'aiming' || gameState === 'kicking' || gameState === 'result') && <GameUI />}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, OrbitControls, Ring } from '@react-three/drei';
 import { useGame } from '../context/GameContext';
 import { useXP } from '../hooks/useXP';
@@ -34,6 +34,48 @@ const AimingReticle = ({ aimX }) => {
       />
     </mesh>
   );
+};
+
+// Cinematic Camera Director that interpolates between default and action replay angles
+const CameraDirector = ({ gameState, isGoal, targetZone }) => {
+  const { camera } = useThree();
+  const targetPos = useRef(new THREE.Vector3(0, 3, 8));
+  const lookAtTarget = useRef(new THREE.Vector3(0, 1, -4.5));
+  const currentLookAt = useRef(new THREE.Vector3(0, 1, -4.5));
+
+  useFrame((state, delta) => {
+    if (gameState === 'kicking' || gameState === 'result') {
+      const targetAimX = targetZone?.position[0] || 0;
+      
+      if (gameState === 'kicking') {
+        // Broadcast camera: low angle, side view tracking the shot path
+        targetPos.current.set(targetAimX + (targetAimX > 0 ? -1.8 : 1.8), 0.8, 1.2);
+        lookAtTarget.current.set(targetAimX, 0.7, -4.5);
+      } else if (gameState === 'result') {
+        // Replay resolution camera
+        if (isGoal) {
+          // View of the ball in the net from inside the goal frame
+          targetPos.current.set(targetAimX * 0.5, 1.6, -3.2);
+          lookAtTarget.current.set(targetAimX, 0.4, -5.0);
+        } else {
+          // Close-up on the keeper catching the ball
+          targetPos.current.set(targetAimX * 0.8, 1.0, -2.6);
+          lookAtTarget.current.set(targetAimX, 0.8, -4.5);
+        }
+      }
+      
+      camera.position.lerp(targetPos.current, 3.5 * delta);
+      currentLookAt.current.lerp(lookAtTarget.current, 5 * delta);
+      camera.lookAt(currentLookAt.current);
+    } else {
+      // Reset targets for default view
+      targetPos.current.set(0, 3, 8);
+      lookAtTarget.current.set(0, 1, -4.5);
+      currentLookAt.current.set(0, 1, -4.5);
+    }
+  });
+
+  return null;
 };
 
 const GameScene = () => {
@@ -130,14 +172,17 @@ const GameScene = () => {
     <>
       <Canvas shadows style={{ background: '#050505', touchAction: 'none' }}>
         <PerspectiveCamera makeDefault position={[0, 3, 8]} fov={60} />
+        <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
         
-        <OrbitControls 
-          enablePan={false}
-          enableZoom={false}
-          maxPolarAngle={Math.PI / 2 - 0.1}
-          minAzimuthAngle={-Math.PI / 4}
-          maxAzimuthAngle={Math.PI / 4}
-        />
+        {(gameState === 'aiming' || gameState === 'menu') && (
+          <OrbitControls 
+            enablePan={false}
+            enableZoom={false}
+            maxPolarAngle={Math.PI / 2 - 0.1}
+            minAzimuthAngle={-Math.PI / 4}
+            maxAzimuthAngle={Math.PI / 4}
+          />
+        )}
 
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 10, 5]} intensity={2} castShadow shadow-mapSize={1024} />
