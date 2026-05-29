@@ -3,21 +3,20 @@ import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 const PitchInner = () => {
-  const [colorMap, normalMap, roughnessMap] = useTexture([
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/textures/grass/color.jpg',
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/textures/grass/normal.jpg',
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/textures/grass/roughness.jpg'
+  const [colorMap, normalMap] = useTexture([
+    '/grass.jpg',
+    '/grass_normal.jpg'
   ]);
 
   useEffect(() => {
-    [colorMap, normalMap, roughnessMap].forEach((texture) => {
+    [colorMap, normalMap].forEach((texture) => {
       if (texture) {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(24, 24);
+        texture.repeat.set(16, 16);
       }
     });
-  }, [colorMap, normalMap, roughnessMap]);
+  }, [colorMap, normalMap]);
 
   const pitchLinesTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
@@ -91,8 +90,7 @@ const PitchInner = () => {
         <meshStandardMaterial
           map={colorMap}
           normalMap={normalMap}
-          roughnessMap={roughnessMap}
-          roughness={0.8}
+          roughness={0.95}
         />
       </mesh>
 
