@@ -188,7 +188,7 @@ const GameScene = () => {
   return (
     <>
       <Canvas shadows style={{ background: '#050505', touchAction: 'none' }}>
-        <PerspectiveCamera makeDefault position={[0, 4, 10]} lookAt={[0, 1.5, 0]} fov={60} />
+        <PerspectiveCamera makeDefault position={[0, 4, 10]} fov={60} />
         <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
         
         {(gameState === 'aiming' || gameState === 'menu') && (
