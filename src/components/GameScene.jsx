@@ -39,9 +39,9 @@ const AimingReticle = ({ aimX }) => {
 // Cinematic Camera Director that interpolates between default and action replay angles
 const CameraDirector = ({ gameState, isGoal, targetZone }) => {
   const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3(0, 3, 8));
-  const lookAtTarget = useRef(new THREE.Vector3(0, 1, -4.5));
-  const currentLookAt = useRef(new THREE.Vector3(0, 1, -4.5));
+  const targetPos = useRef(new THREE.Vector3(0, 4, 10));
+  const lookAtTarget = useRef(new THREE.Vector3(0, 1.5, 0));
+  const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
 
   useFrame((state, delta) => {
     if (gameState === 'kicking' || gameState === 'result') {
@@ -69,9 +69,9 @@ const CameraDirector = ({ gameState, isGoal, targetZone }) => {
       camera.lookAt(currentLookAt.current);
     } else {
       // Reset targets for default view
-      targetPos.current.set(0, 3, 8);
-      lookAtTarget.current.set(0, 1, -4.5);
-      currentLookAt.current.set(0, 1, -4.5);
+      targetPos.current.set(0, 4, 10);
+      lookAtTarget.current.set(0, 1.5, 0);
+      currentLookAt.current.set(0, 1.5, 0);
     }
   });
 
@@ -188,11 +188,12 @@ const GameScene = () => {
   return (
     <>
       <Canvas shadows style={{ background: '#050505', touchAction: 'none' }}>
-        <PerspectiveCamera makeDefault position={[0, 3, 8]} fov={60} />
+        <PerspectiveCamera makeDefault position={[0, 4, 10]} lookAt={[0, 1.5, 0]} fov={60} />
         <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
         
         {(gameState === 'aiming' || gameState === 'menu') && (
           <OrbitControls 
+            target={[0, 1.5, 0]}
             enablePan={false}
             enableZoom={false}
             maxPolarAngle={Math.PI / 2 - 0.1}
@@ -218,11 +219,11 @@ const GameScene = () => {
         <Environment preset="night" />
       </Canvas>
       {gameState === 'aiming' && (
-        <div style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)', zIndex: 10, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, pointerEvents: 'auto' }}>
           <button 
             style={{ pointerEvents: 'auto', padding: '15px 40px', fontSize: '24px', fontWeight: 'bold', background: 'rgba(57, 255, 20, 0.8)', color: '#000', border: '2px solid #39FF14', borderRadius: '8px', cursor: 'pointer', boxShadow: '0 0 20px #39FF14' }} 
-            onClick={triggerKick}
-            onTouchStart={triggerKick}
+            onClick={(e) => { e.stopPropagation(); triggerKick(e); }}
+            onTouchStart={(e) => { e.stopPropagation(); triggerKick(e); }}
           >
             SHOOT
           </button>
