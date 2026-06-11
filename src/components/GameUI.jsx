@@ -6,7 +6,7 @@ const GameUI = () => {
   const { gameState, result, resolveGameOnChain, triggerReset } = useGame();
 
   const getTwitterShareUrl = () => {
-    const gameUrl = "https://strikegraph-ai.vercel.app";
+    const gameUrl = "https://strikegraph-ai.xyz";
     let text = "";
     let hashtags = "";
     
