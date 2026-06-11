@@ -135,7 +135,11 @@ const GameScene = () => {
     };
   }, [gameState, aimX]);
 
-  const triggerKick = () => {
+  const triggerKick = (e) => {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
     if (gameState !== 'aiming') return;
     
     const variance = (Math.random() - 0.5) * 1.5; // +/- 0.75 spread max
@@ -218,6 +222,7 @@ const GameScene = () => {
           <button 
             style={{ pointerEvents: 'auto', padding: '15px 40px', fontSize: '24px', fontWeight: 'bold', background: 'rgba(57, 255, 20, 0.8)', color: '#000', border: '2px solid #39FF14', borderRadius: '8px', cursor: 'pointer', boxShadow: '0 0 20px #39FF14' }} 
             onClick={triggerKick}
+            onTouchStart={triggerKick}
           >
             SHOOT
           </button>
