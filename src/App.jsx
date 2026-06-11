@@ -25,7 +25,7 @@ const AppContent = () => {
 
       {/* HTML UI Overlay Layer */}
       <div className="absolute inset-0 z-10 pointer-events-none mt-[72px]">
-        <div className="pointer-events-auto h-full w-full">
+        <div className={`${(gameState === 'aiming' || gameState === 'kicking' || gameState === 'result') ? 'pointer-events-none' : 'pointer-events-auto'} h-full w-full`}>
           {gameState === 'menu' && <MainMenu />}
           {gameState === 'staking' && <StakingMenu />}
           {gameState === 'market' && <TransferMarket />}

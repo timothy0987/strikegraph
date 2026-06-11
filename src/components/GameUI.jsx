@@ -42,7 +42,7 @@ const GameUI = () => {
               href={getTwitterShareUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-premium flex items-center gap-2 px-6 py-3 font-bold text-sm bg-neonPink border-neonPink text-white hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,16,240,0.3)] decoration-none"
+              className="btn-premium flex items-center gap-2 px-6 py-3 font-bold text-sm bg-neonPink border-neonPink text-white hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,16,240,0.3)] decoration-none pointer-events-auto"
             >
               <Share2 size={16} /> SHARE REPLAY
             </a>
@@ -52,7 +52,7 @@ const GameUI = () => {
                 triggerReset();
                 resolveGameOnChain(result === 'GOAL');
               }}
-              className="btn-neon flex items-center gap-2 px-8 py-3 font-bold text-sm bg-neonGreen border-neonGreen text-black hover:scale-105 transition-all shadow-[0_0_15px_rgba(57,255,20,0.3)]"
+              className="btn-neon flex items-center gap-2 px-8 py-3 font-bold text-sm bg-neonGreen border-neonGreen text-black hover:scale-105 transition-all shadow-[0_0_15px_rgba(57,255,20,0.3)] pointer-events-auto"
             >
               CONTINUE <ArrowRight size={16} />
             </button>
