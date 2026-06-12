@@ -11,10 +11,13 @@
     padding: 0;
     overflow: hidden;
     user-select: none;
+    touch-action: none;
   }
 
   #root {
     @apply w-screen h-screen;
+    overflow: hidden;
+    touch-action: none;
   }
 }
 

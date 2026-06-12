@@ -187,37 +187,39 @@ const GameScene = () => {
 
   return (
     <>
-      <Canvas shadows style={{ background: '#050505', touchAction: 'none' }}>
-        <PerspectiveCamera makeDefault position={[0, 4, 10]} fov={60} />
-        <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
-        
-        {(gameState === 'aiming' || gameState === 'menu') && (
-          <OrbitControls 
-            target={[0, 1.5, 0]}
-            enablePan={false}
-            enableZoom={false}
-            maxPolarAngle={Math.PI / 2 - 0.1}
-            minAzimuthAngle={-Math.PI / 4}
-            maxAzimuthAngle={Math.PI / 4}
-          />
-        )}
+      <div style={{ width: '100vw', height: '100dvh' }}>
+        <Canvas dpr={[1, 2]} shadows style={{ background: '#050505', touchAction: 'none' }}>
+          <PerspectiveCamera makeDefault position={[0, 4, 10]} fov={60} />
+          <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
+          
+          {(gameState === 'aiming' || gameState === 'menu') && (
+            <OrbitControls 
+              target={[0, 1.5, 0]}
+              enablePan={false}
+              enableZoom={false}
+              maxPolarAngle={Math.PI / 2 - 0.1}
+              minAzimuthAngle={-Math.PI / 4}
+              maxAzimuthAngle={Math.PI / 4}
+            />
+          )}
 
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 10, 5]} intensity={2} castShadow shadow-mapSize={1024} />
-        <pointLight position={[0, 2, -4]} color="#39FF14" intensity={5} distance={10} />
-        <pointLight position={[0, 2, 2]} color="#FF10F0" intensity={3} distance={8} />
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 10, 5]} intensity={2} castShadow shadow-mapSize={1024} />
+          <pointLight position={[0, 2, -4]} color="#39FF14" intensity={5} distance={10} />
+          <pointLight position={[0, 2, 2]} color="#FF10F0" intensity={3} distance={8} />
 
-        <Pitch />
-        <Goalpost />
-        
-        <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
-        <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} resetTrigger={resetTrigger} />
-        <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} resetTrigger={resetTrigger} />
+          <Pitch />
+          <Goalpost />
+          
+          <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
+          <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} resetTrigger={resetTrigger} />
+          <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} resetTrigger={resetTrigger} />
 
-        {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
-        
-        <Environment preset="night" />
-      </Canvas>
+          {gameState === 'aiming' && <AimingReticle aimX={aimX} />}
+          
+          <Environment preset="night" />
+        </Canvas>
+      </div>
       {gameState === 'aiming' && (
         <div style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, pointerEvents: 'auto' }}>
           <button 
