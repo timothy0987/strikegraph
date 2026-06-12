@@ -38,7 +38,7 @@ const TopNav = () => {
   const handleAdminClick = () => setGameState('admin');
 
   return (
-    <nav className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-50 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
+    <nav className="absolute top-0 left-0 w-full flex items-center justify-between p-4 px-4 overflow-hidden z-50 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
       {/* Left side: Logo & Desktop links */}
       <div className="flex items-center gap-6 pl-4">
         <h1 className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_5px_rgba(57,255,20,0.5)] tracking-widest cursor-pointer" onClick={handlePlayClick}>
@@ -111,7 +111,7 @@ const TopNav = () => {
       </div>
 
       {/* Right side: Wallet Connect & Hamburger Menu */}
-      <div className="flex items-center gap-4 pr-4">
+      <div className="flex items-center gap-3">
         <ConnectButton.Custom>
           {({
             account,
@@ -192,8 +192,8 @@ const TopNav = () => {
                       <button onClick={openAccountModal} type="button" className="glass-panel px-3 py-2 md:px-4 flex items-center gap-2 md:gap-3 text-neonGreen font-bold text-xs md:text-sm">
                         <span>{nativeId || account.displayName}</span>
                         {account.displayBalance && (
-                          <span className="flex items-center gap-1 text-neonPink border-l border-white/20 pl-2 md:pl-3">
-                             <Coins size={14} /> {account.displayBalance}
+                          <span className="hidden sm:inline-block text-neonPink border-l border-white/20 pl-2 md:pl-3">
+                             <Coins size={14} className="inline mr-1" /> {account.displayBalance}
                           </span>
                         )}
                       </button>
@@ -208,9 +208,9 @@ const TopNav = () => {
         {/* Mobile Hamburger Icon */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex md:hidden text-white p-2 focus:outline-none hover:text-neonGreen transition-colors"
+          className="text-white text-3xl block md:hidden z-50 p-2 focus:outline-none hover:text-neonGreen transition-colors"
         >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
