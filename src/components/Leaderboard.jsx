@@ -3,22 +3,9 @@ import { useGame } from '../context/GameContext';
 import { usePublicClient } from 'wagmi';
 import { formatEther } from 'viem';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
-import { Trophy, Coins, Database, ShieldAlert } from 'lucide-react';
+import { Trophy, Coins, Database } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue } from 'firebase/database';
-
-const MOCK_ONCHAIN_LEADERBOARD = [
-  { player: '0x3a921d7bc009db224d2b54d12e1116eb56ce491', amount: '12,450 HBAR', rawAmount: 12450, nativeId: 'striker.hbar' },
-  { player: '0x7b1c11440099db224d2b54d12e1116eb56c028a', amount: '9,820 HBAR', rawAmount: 9820, nativeId: 'keeper_god.hbar' },
-  { player: '0x15df11440099db224d2b54d12e1116eb56cd5c1', amount: '8,150 HBAR', rawAmount: 8150, nativeId: 'penalty_pro.hbar' },
-  { player: '0x9e1211440099db224d2b54d12e1116eb56cab89', amount: '6,400 HBAR', rawAmount: 6400, nativeId: 'hedera_whale.hbar' },
-  { player: '0x5c4fff2d11440099db224d2b54d12e1116eb565cf', amount: '5,900 HBAR', rawAmount: 5900, nativeId: 'strikegraph.hbar' },
-  { player: '0x2c1011440099db224d2b54d12e1116eb56c34ab', amount: '4,200 HBAR', rawAmount: 4200, nativeId: 'hbar_maxi.hbar' },
-  { player: '0x8f9c11440099db224d2b54d12e1116eb56cde78', amount: '3,850 HBAR', rawAmount: 3850, nativeId: 'clutch_player.hbar' },
-  { player: '0x4d5e11440099db224d2b54d12e1116eb56c67f8', amount: '2,900 HBAR', rawAmount: 2900, nativeId: 'web3_legend.hbar' },
-  { player: '0x0a1b11440099db224d2b54d12e1116eb56c2c3d', amount: '1,800 HBAR', rawAmount: 1800, nativeId: 'kick_master.hbar' },
-  { player: '0x6e7f11440099db224d2b54d12e1116eb56c8a9b', amount: '950 HBAR', rawAmount: 950, nativeId: 'rookie_kick.hbar' }
-];
 
 const Leaderboard = () => {
   const { setGameState, walletAddress } = useGame();
@@ -28,7 +15,6 @@ const Leaderboard = () => {
   const [xpData, setXpData] = useState([]);
   const [onchainData, setOnchainData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isUsingMock, setIsUsingMock] = useState(false);
 
   const truncateAddress = (addr) => {
     if (!addr) return '';
@@ -60,8 +46,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchOnChainEvents = async () => {
       if (!publicClient) {
-        setOnchainData(MOCK_ONCHAIN_LEADERBOARD);
-        setIsUsingMock(true);
+        setOnchainData([]);
         return;
       }
       
@@ -75,8 +60,7 @@ const Leaderboard = () => {
         });
 
         if (!logs || logs.length === 0) {
-          setOnchainData(MOCK_ONCHAIN_LEADERBOARD);
-          setIsUsingMock(true);
+          setOnchainData([]);
         } else {
           const earnings = {};
           logs.forEach(log => {
@@ -97,18 +81,11 @@ const Leaderboard = () => {
             .sort((a, b) => b.rawAmount - a.rawAmount)
             .slice(0, 10);
 
-          if (sortedEarnings.length === 0) {
-            setOnchainData(MOCK_ONCHAIN_LEADERBOARD);
-            setIsUsingMock(true);
-          } else {
-            setOnchainData(sortedEarnings);
-            setIsUsingMock(false);
-          }
+          setOnchainData(sortedEarnings);
         }
       } catch (err) {
-        console.error("Failed to load on-chain events, falling back to mock:", err);
-        setOnchainData(MOCK_ONCHAIN_LEADERBOARD);
-        setIsUsingMock(true);
+        console.error("Failed to load on-chain events:", err);
+        setOnchainData([]);
       } finally {
         setLoading(false);
       }
@@ -153,14 +130,6 @@ const Leaderboard = () => {
           </button>
         </div>
 
-        {/* Info Label / Status */}
-        {activeTab === 'onchain' && isUsingMock && (
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-[#FF5F1F]/10 border border-[#FF5F1F]/20 text-[#FF5F1F] rounded-lg text-[10px] font-bold uppercase tracking-wider">
-            <ShieldAlert size={14} />
-            <span>Direct Contract event logs fallback loaded successfully.</span>
-          </div>
-        )}
-
         {/* Rankings List */}
         <div className="mt-2 flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
           {loading ? (
@@ -201,8 +170,8 @@ const Leaderboard = () => {
                 );
               })
             ) : (
-              <div className="text-center py-10 text-gray-500 italic font-mono text-sm">
-                No on-chain games resolved yet.
+              <div className="text-center py-12 px-6 text-gray-400 font-mono text-sm border border-dashed border-white/10 rounded-lg bg-black/20">
+                No on-chain records found. Connect your wallet and be the first to rank on the Hedera Testnet!
               </div>
             )
           ) : (
