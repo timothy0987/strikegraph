@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield } from 'lucide-react';
+import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield, Menu, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useHederaNativeId } from '../hooks/useHederaNativeId';
 import { useReadContract } from 'wagmi';
@@ -9,6 +9,7 @@ import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/cont
 const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
   const { nativeId } = useHederaNativeId(walletAddress);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Read owner address from smart contract (memoized to prevent infinite render loops)
   const ownerReadConfig = React.useMemo(() => ({
@@ -38,11 +39,12 @@ const TopNav = () => {
 
   return (
     <nav className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-50 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
+      {/* Left side: Logo & Desktop links */}
       <div className="flex items-center gap-6 pl-4">
-        <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_5px_rgba(57,255,20,0.5)] tracking-widest">
+        <h1 className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_5px_rgba(57,255,20,0.5)] tracking-widest cursor-pointer" onClick={handlePlayClick}>
           STRIKEGRAPH
         </h1>
-        <div className="flex gap-4 ml-8">
+        <div className="hidden md:flex gap-4 ml-8">
           <button
             onClick={handlePlayClick}
             className={`flex items-center gap-2 px-4 py-2 font-bold transition-all ${
@@ -108,7 +110,8 @@ const TopNav = () => {
         </div>
       </div>
 
-      <div className="flex gap-4 pr-4">
+      {/* Right side: Wallet Connect & Hamburger Menu */}
+      <div className="flex items-center gap-4 pr-4">
         <ConnectButton.Custom>
           {({
             account,
@@ -156,12 +159,12 @@ const TopNav = () => {
                   }
 
                   return (
-                    <div style={{ display: 'flex', gap: 12 }}>
+                    <div className="flex items-center gap-2 md:gap-3">
+                      {/* Network Name - Hidden on mobile screens */}
                       <button
                         onClick={openChainModal}
-                        style={{ display: 'flex', alignItems: 'center' }}
                         type="button"
-                        className="glass-panel px-4 py-2 text-neonBlue font-bold text-sm"
+                        className="hidden md:flex items-center glass-panel px-4 py-2 text-neonBlue font-bold text-sm"
                       >
                         {chain.hasIcon && (
                           <div
@@ -186,11 +189,11 @@ const TopNav = () => {
                         {chain.name}
                       </button>
 
-                      <button onClick={openAccountModal} type="button" className="glass-panel px-4 py-2 flex items-center gap-3 text-neonGreen font-bold text-sm">
+                      <button onClick={openAccountModal} type="button" className="glass-panel px-3 py-2 md:px-4 flex items-center gap-2 md:gap-3 text-neonGreen font-bold text-xs md:text-sm">
                         <span>{nativeId || account.displayName}</span>
                         {account.displayBalance && (
-                          <span className="flex items-center gap-1 text-neonPink">
-                             <Coins size={16} /> {account.displayBalance}
+                          <span className="flex items-center gap-1 text-neonPink border-l border-white/20 pl-2 md:pl-3">
+                             <Coins size={14} /> {account.displayBalance}
                           </span>
                         )}
                       </button>
@@ -201,7 +204,65 @@ const TopNav = () => {
             );
           }}
         </ConnectButton.Custom>
+
+        {/* Mobile Hamburger Icon */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex md:hidden text-white p-2 focus:outline-none hover:text-neonGreen transition-colors"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Dropdown Stack Drawer */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-lg border-b border-white/10 flex flex-col gap-1 p-4 md:hidden z-40 shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+          <button
+            onClick={() => { handlePlayClick(); setIsMobileMenuOpen(false); }}
+            className={`flex items-center gap-3 px-4 py-3 font-bold transition-all w-full rounded-lg ${
+              isPlay ? 'bg-neonGreen/10 text-neonGreen shadow-[inset_0_0_8px_rgba(57,255,20,0.1)]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Gamepad2 size={18} /> PLAY
+          </button>
+          <button
+            onClick={() => { handleMarketClick(); setIsMobileMenuOpen(false); }}
+            className={`flex items-center gap-3 px-4 py-3 font-bold transition-all w-full rounded-lg ${
+              isMarket ? 'bg-[#00FFFF]/10 text-[#00FFFF] shadow-[inset_0_0_8px_rgba(0,255,255,0.1)]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <ShoppingCart size={18} /> MARKET
+          </button>
+          <button
+            onClick={() => { handleDefendClick(); setIsMobileMenuOpen(false); }}
+            className={`flex items-center gap-3 px-4 py-3 font-bold transition-all w-full rounded-lg ${
+              isDefend ? 'bg-[#FF5F1F]/10 text-[#FF5F1F] shadow-[inset_0_0_8px_rgba(255,95,31,0.1)]' : 'text-gray-400 hover:text-white'
+            }`}
+            style={isDefend ? { color: '#FF5F1F', textShadow: '0 0 5px #FF5F1F' } : {}}
+          >
+            <Shield size={18} /> DEFEND
+          </button>
+          <button
+            onClick={() => { handleLeaderboardClick(); setIsMobileMenuOpen(false); }}
+            className={`flex items-center gap-3 px-4 py-3 font-bold transition-all w-full rounded-lg ${
+              isLeaderboard ? 'bg-neonPink/10 text-neonPink shadow-[inset_0_0_8px_rgba(255,16,240,0.1)]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Trophy size={18} /> LEADERBOARD
+          </button>
+          {showAdminTab && (
+            <button
+              onClick={() => { handleAdminClick(); setIsMobileMenuOpen(false); }}
+              className={`flex items-center gap-3 px-4 py-3 font-bold transition-all w-full rounded-lg ${
+                isAdmin ? 'bg-neonGreen/10 text-neonGreen shadow-[inset_0_0_8px_rgba(57,255,20,0.1)]' : 'text-gray-400 hover:text-white'
+              }`}
+              style={isAdmin ? { color: '#39FF14', textShadow: '0 0 5px #39FF14' } : {}}
+            >
+              <Shield size={18} /> ADMIN
+            </button>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
