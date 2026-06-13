@@ -47,6 +47,16 @@ const StakingMenu = () => {
             />
           </div>
 
+          {/* Gameplay Instructions */}
+          <div className="bg-black/50 border border-neonGreen/30 rounded-lg p-3 mb-4 text-sm text-gray-300">
+            <h4 className="text-neonGreen font-bold mb-2">HOW TO PLAY</h4>
+            <ol className="list-decimal list-inside space-y-1.5 font-mono text-xs leading-relaxed text-gray-300">
+              <li>Stake your Testnet HBAR to enter the pitch.</li>
+              <li>Tap or click 'SHOOT' and aim your shot.</li>
+              <li>Beat the AI Keeper to earn a 2x payout and XP!</li>
+            </ol>
+          </div>
+
           <button 
             disabled={isPending}
             onClick={handleStakeClick} 
