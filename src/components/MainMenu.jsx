@@ -55,6 +55,16 @@ const MainMenu = () => {
           >
             TRANSFER MARKET
           </button>
+          
+          {import.meta.env.DEV && (
+            <button 
+              onClick={() => setGameState('aiming')} 
+              className="text-xs text-red-500 hover:text-red-400 mt-2 text-center underline font-mono cursor-pointer"
+              id="dev-bypass-btn"
+            >
+              [DEV BYPASS] Go directly to Play
+            </button>
+          )}
         </div>
       </div>
     </div>

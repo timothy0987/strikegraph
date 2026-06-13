@@ -38,3 +38,8 @@
     @apply bg-black/60 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl;
   }
 }
+
+/* Ensure RainbowKit Wallet Connect Modal stacks above the mobile overlay */
+div[data-rk] {
+  --rk-modal-z-index: 9999 !important;
+}
