@@ -27,42 +27,41 @@ const hederaTestnet = {
   testnet: true,
 };
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '1ae92b26df02f0abca6304df07deb018';
-
 const hashpackWallet = ({ projectId }) => ({
   id: 'hashpack',
   name: 'HashPack',
   iconUrl: 'https://www.hashpack.app/favicon.ico',
-  iconBackground: '#fff',
+  iconBackground: '#0b1d3a',
   downloadUrls: {
+    chrome: 'https://chrome.google.com/webstore/detail/hashpack/jggofhoiebckgbifbhahahbgedhcphfo',
     android: 'https://play.google.com/store/apps/details?id=app.hashpack.wallet',
-    ios: 'https://apps.apple.com/us/app/hashpack/id1606857945',
-    chrome: 'https://chrome.google.com/webstore/detail/hashpack/jggofmnebchlegcjeciahbcnailianoo',
-    qrCode: 'https://www.hashpack.app/',
+    ios: 'https://apps.apple.com/us/app/hashpack-wallet/id1612848553',
   },
   createConnector: getWalletConnectConnector({
     projectId,
   }),
 });
 
+const wallets = [
+  {
+    groupName: 'Recommended',
+    wallets: [
+      hashpackWallet,
+      metaMaskWallet,
+      rainbowWallet,
+      walletConnectWallet,
+    ],
+  },
+];
+
 const config = getDefaultConfig({
   appName: 'StrikeGraph',
-  projectId,
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
   chains: [hederaTestnet],
-  wallets: [
-    {
-      groupName: 'Popular',
-      wallets: [
-        hashpackWallet({ projectId }),
-        metaMaskWallet({ projectId }),
-        rainbowWallet({ projectId }),
-        walletConnectWallet({ projectId }),
-      ],
-    },
-  ],
   transports: {
     [hederaTestnet.id]: http(),
   },
+  wallets,
 });
 
 const queryClient = new QueryClient();
