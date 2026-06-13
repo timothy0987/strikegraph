@@ -7,7 +7,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import { getDefaultConfig, RainbowKitProvider, darkTheme, getWalletConnectConnector } from '@rainbow-me/rainbowkit';
+import { metaMaskWallet, rainbowWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { WagmiProvider, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -26,10 +27,39 @@ const hederaTestnet = {
   testnet: true,
 };
 
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '1ae92b26df02f0abca6304df07deb018';
+
+const hashpackWallet = ({ projectId }) => ({
+  id: 'hashpack',
+  name: 'HashPack',
+  iconUrl: 'https://www.hashpack.app/favicon.ico',
+  iconBackground: '#fff',
+  downloadUrls: {
+    android: 'https://play.google.com/store/apps/details?id=app.hashpack.wallet',
+    ios: 'https://apps.apple.com/us/app/hashpack/id1606857945',
+    chrome: 'https://chrome.google.com/webstore/detail/hashpack/jggofmnebchlegcjeciahbcnailianoo',
+    qrCode: 'https://www.hashpack.app/',
+  },
+  createConnector: getWalletConnectConnector({
+    projectId,
+  }),
+});
+
 const config = getDefaultConfig({
   appName: 'StrikeGraph',
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
+  projectId,
   chains: [hederaTestnet],
+  wallets: [
+    {
+      groupName: 'Popular',
+      wallets: [
+        hashpackWallet({ projectId }),
+        metaMaskWallet({ projectId }),
+        rainbowWallet({ projectId }),
+        walletConnectWallet({ projectId }),
+      ],
+    },
+  ],
   transports: {
     [hederaTestnet.id]: http(),
   },
