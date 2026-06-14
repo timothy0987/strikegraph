@@ -61,9 +61,12 @@ const TopNav = () => {
             <nav className="absolute top-0 left-0 w-full flex items-center justify-between p-4 px-4 overflow-hidden z-40 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
               {/* Left side: Logo & Desktop links */}
               <div className="flex items-center gap-6 pl-4">
-                <h1 className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_5px_rgba(57,255,20,0.5)] tracking-widest cursor-pointer" onClick={handlePlayClick}>
-                  STRIKEGRAPH
-                </h1>
+                <img
+                  src="/logo.png"
+                  alt="StrikeGraph AI Logo"
+                  onClick={handlePlayClick}
+                  className="h-8 sm:h-10 w-auto object-contain cursor-pointer"
+                />
                 <div className="hidden md:flex gap-4 ml-8">
                   <button
                     onClick={handlePlayClick}
@@ -224,9 +227,11 @@ const TopNav = () => {
                   <X size={28} />
                 </button>
 
-                <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue drop-shadow-[0_0_8px_rgba(57,255,20,0.5)] tracking-widest mb-8">
-                  STRIKEGRAPH
-                </h1>
+                <img
+                  src="/logo.png"
+                  alt="StrikeGraph AI Logo"
+                  className="h-12 w-auto object-contain mb-8"
+                />
 
                 <div className="flex flex-col gap-3 w-full max-w-[280px]">
                   <button
