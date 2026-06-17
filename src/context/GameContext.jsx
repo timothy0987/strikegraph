@@ -9,9 +9,9 @@ export const TREASURY_ADDRESS = "0x7cbff11440099db224d2b54d12e1116eb565c8fe";
 
 const playerVariants = [
   { id: 'base', tier: 0, name: 'Base', price: 0, color: '#00FFFF', power: 1.0, accuracy: 1.0 },
-  { id: 'striker', tier: 1, name: 'Striker', price: 50, color: '#FF0033', power: 1.5, accuracy: 1.0 },
-  { id: 'sniper', tier: 2, name: 'Sniper', price: 100, color: '#00FF33', power: 1.0, accuracy: 1.5 },
-  { id: 'legend', tier: 3, name: 'Legend', price: 500, color: '#FFD700', power: 1.8, accuracy: 2.0 }
+  { id: 'striker', tier: 1, name: 'Striker', price: 50, color: '#FF0033', power: 1.3, accuracy: 1.6 },
+  { id: 'sniper', tier: 2, name: 'Sniper', price: 100, color: '#00FF33', power: 1.5, accuracy: 1.8 },
+  { id: 'legend', tier: 3, name: 'Legend', price: 500, color: '#FFD700', power: 3.0, accuracy: 3.0 }
 ];
 
 export const GameProvider = ({ children }) => {
