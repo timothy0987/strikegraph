@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Coins } from 'lucide-react';
+import X1Badge from './X1Badge';
 
 const MainMenu = () => {
   const { setGameState, selectedPlayer, walletConnected, activeStake } = useGame();
@@ -11,8 +11,8 @@ const MainMenu = () => {
       {/* Top Bar removed, moved to TopNav */}
 
       <div className="glass-panel p-10 flex flex-col items-center gap-8 min-w-[400px]">
-        {/* Title moved to TopNav */}
-        
+        <X1Badge />
+
         <div className="text-gray-400 flex flex-col items-center gap-2">
           <span>Current Kicker: <span style={{ color: selectedPlayer?.color }} className="font-bold">{selectedPlayer?.name}</span></span>
           <div className="flex gap-4 text-sm">
@@ -26,7 +26,7 @@ const MainMenu = () => {
           <div className="bg-black/50 border border-green-500/30 rounded-lg p-3 mb-4 text-sm text-gray-300">
             <h4 className="text-green-400 font-bold mb-2">HOW TO PLAY</h4>
             <ol className="list-decimal list-inside space-y-1.5 font-mono text-xs leading-relaxed text-gray-300">
-              <li>Stake your Testnet HBAR to enter the pitch.</li>
+              <li>Stake test X1T on X1 EcoChain to enter the pitch.</li>
               <li>Tap or click 'SHOOT' and aim your shot.</li>
               <li>Beat the AI Keeper to earn a 2x payout and XP!</li>
             </ol>

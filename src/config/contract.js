@@ -1,6 +1,7 @@
-// Deployed StrikeGraphStore contract address on Hedera Testnet
-// IMPORTANT: Replace this placeholder with your actual deployed contract address on Hedera Testnet
-export const STRIKEGRAPH_STORE_ADDRESS = "0x3716C733D6715466D1eF5B54878e1Cd28C3cf7B4"; // Replace with your actual deployed contract address
+// Deployed StrikeGraphStore contract address on X1 EcoChain — Maculatus Testnet (chainId 10778)
+// Deployed 2026-09-06 · owner/deployer 0xA8EE7227659b2d37C8C551316edfCCEE6458F315
+// Explorer: https://maculatus-scan.x1eco.com/address/0x9abdEa3C7Ad6Db0C41802f2B59e8045B0B277dA2
+export const STRIKEGRAPH_STORE_ADDRESS = "0x9abdEa3C7Ad6Db0C41802f2B59e8045B0B277dA2";
 
 export const STRIKEGRAPH_STORE_ABI = [
   {

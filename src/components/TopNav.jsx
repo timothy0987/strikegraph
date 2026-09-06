@@ -2,13 +2,11 @@ import React from 'react';
 import { useGame } from '../context/GameContext';
 import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield, Menu, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useHederaNativeId } from '../hooks/useHederaNativeId';
 import { useReadContract } from 'wagmi';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 
 const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
-  const { nativeId } = useHederaNativeId(walletAddress);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Read owner address from smart contract (memoized to prevent infinite render loops)
@@ -194,7 +192,7 @@ const TopNav = () => {
                         </button>
 
                         <button onClick={openAccountModal} type="button" className="glass-panel px-3 py-2 md:px-4 flex items-center gap-2 md:gap-3 text-neonGreen font-bold text-xs md:text-sm">
-                          <span>{nativeId || account.displayName}</span>
+                          <span>{account.displayName}</span>
                           {account.displayBalance && (
                             <span className="hidden sm:inline-block text-neonPink border-l border-white/20 pl-2 md:pl-3">
                                <Coins size={14} className="inline mr-1" /> {account.displayBalance}

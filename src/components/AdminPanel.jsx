@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, parseUnits } from 'viem';
+import { parseEther } from 'viem';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 import { Landmark, ArrowDownCircle, ShieldCheck, AlertCircle } from 'lucide-react';
 
@@ -57,14 +57,14 @@ const AdminPanel = () => {
     setLocalError('');
     const val = parseFloat(withdrawAmount);
     if (isNaN(val) || val <= 0) {
-      setLocalError("Please enter a valid HBAR amount");
+      setLocalError("Please enter a valid X1T amount");
       return;
     }
 
     if (contractBalanceData) {
       const contractBalance = parseFloat(contractBalanceData.formatted);
       if (val > contractBalance) {
-        setLocalError(`Cannot withdraw more than current contract balance (${contractBalance} HBAR)`);
+        setLocalError(`Cannot withdraw more than current contract balance (${contractBalance} X1T)`);
         return;
       }
     }
@@ -73,7 +73,7 @@ const AdminPanel = () => {
       address: STRIKEGRAPH_STORE_ADDRESS,
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'withdrawLiquidity',
-      args: [parseUnits(val.toString(), 8)],
+      args: [parseEther(val.toString())],
       type: 'legacy',
       gas: 500000n,
     });
@@ -136,14 +136,14 @@ const AdminPanel = () => {
         <div className="flex flex-col items-center gap-2 bg-black/40 border border-white/5 rounded-xl py-4 px-8 w-full">
           <span className="text-xs text-gray-400 uppercase tracking-widest font-mono">Contract Balance</span>
           <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonGreen to-neonBlue tracking-wider">
-            {contractBalanceData ? parseFloat(contractBalanceData.formatted).toFixed(2) : '0.00'} HBAR
+            {contractBalanceData ? parseFloat(contractBalanceData.formatted).toFixed(2) : '0.00'} X1T
           </span>
         </div>
 
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col gap-2 w-full">
             <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
-              Withdrawal Amount (HBAR)
+              Withdrawal Amount (X1T)
             </label>
             <input
               type="number"

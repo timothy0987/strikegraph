@@ -14,10 +14,10 @@ contract StrikeGraphStore {
     // 2 = Sniper
     // 3 = Legend
 
-    // HBAR prices (represented in 8-decimal EVM native currency equivalents - Tinybars)
-    uint256 public constant PRICE_STRIKER = 50 * 1e8; // 50 HBAR
-    uint256 public constant PRICE_SNIPER = 100 * 1e8; // 100 HBAR
-    uint256 public constant PRICE_LEGEND = 500 * 1e8; // 500 HBAR
+    // Player variant prices in native X1T (18-decimal EVM wei, standard EVM semantics)
+    uint256 public constant PRICE_STRIKER = 50 ether; // 50 X1T
+    uint256 public constant PRICE_SNIPER = 100 ether; // 100 X1T
+    uint256 public constant PRICE_LEGEND = 500 ether; // 500 X1T
 
     // Track owned player tier per address
     mapping(address => uint256) public ownedTiers;
@@ -75,7 +75,7 @@ contract StrikeGraphStore {
         }
 
         // Check if value sent matches or exceeds the price
-        require(msg.value >= price, "Insufficient HBAR payment");
+        require(msg.value >= price, "Insufficient X1T payment");
 
         // Instantly forward the funds to the Treasury address
         (bool success, ) = TREASURY.call{value: msg.value}("");
@@ -88,10 +88,10 @@ contract StrikeGraphStore {
     }
 
     /**
-     * @notice Stake HBAR before playing (must be exactly 5 or 50 HBAR).
+     * @notice Stake native X1T before playing (minimum 5 X1T).
      */
     function stake() external payable {
-        require(msg.value >= 5 * 1e8, "Minimum stake is 5 HBAR");
+        require(msg.value >= 5 ether, "Minimum stake is 5 X1T");
         require(activeStakes[msg.sender] == 0, "Already have an active stake");
 
         activeStakes[msg.sender] = msg.value;

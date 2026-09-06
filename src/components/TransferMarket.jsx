@@ -49,7 +49,7 @@ const TransferMarket = () => {
               <div key={variant.id} style={{ borderColor: variant.color, boxShadow: isEquipped ? `0 0 20px ${variant.color}80` : 'none' }} className={`p-6 rounded-xl border-2 flex flex-col items-center gap-4 bg-gray-900/60 backdrop-blur-sm relative overflow-hidden transition-all duration-300 hover:scale-105`}>
                 <h3 style={{ color: variant.color }} className="text-2xl font-black uppercase tracking-wider">{variant.name}</h3>
                 <div className="text-3xl font-black text-white my-2">
-                  {variant.price === 0 ? 'FREE' : `${variant.price} ℏ`}
+                  {variant.price === 0 ? 'FREE' : `${variant.price} X1T`}
                 </div>
                 <div className="w-full space-y-3 mt-2">
                   <div className="flex justify-between items-center text-sm bg-black/40 px-3 py-2 rounded">

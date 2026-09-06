@@ -11,11 +11,11 @@ const GameUI = () => {
     let hashtags = "";
     
     if (result === 'GOAL') {
-      text = "Just scored an absolute banger against the StrikeGraph AI! ⚽ Play the game and try to beat my high score on Hedera: ";
-      hashtags = "StrikeGraph,Hedera,PlayToEarn";
+      text = "Just scored an absolute banger against the StrikeGraph AI! ⚽ Play the game and try to beat my high score on X1 EcoChain: ";
+      hashtags = "StrikeGraph,X1EcoChain,PlayToEarn";
     } else {
       text = "The StrikeGraph AI goalie just made an insane save against me... 🧤 I need that 1.8x Accuracy NFT for round two: ";
-      hashtags = "StrikeGraph,Hedera,PlayToOwn";
+      hashtags = "StrikeGraph,X1EcoChain,PlayToOwn";
     }
     
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(gameUrl)}&hashtags=${hashtags}`;

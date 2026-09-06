@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { Coins } from 'lucide-react';
+import X1Badge from './X1Badge';
 
 const StakingMenu = () => {
   const { stakeOnChain, isPending, setGameState } = useGame();
@@ -9,7 +10,7 @@ const StakingMenu = () => {
   const handleStakeClick = () => {
     const val = parseFloat(stakeAmount);
     if (isNaN(val) || val < 5) {
-      alert("Minimum stake is 5 HBAR");
+      alert("Minimum stake is 5 X1T");
       return;
     }
     stakeOnChain(val);
@@ -26,15 +27,16 @@ const StakingMenu = () => {
             GAME STAKING
           </h1>
           <p className="text-gray-400 text-sm text-center max-w-[280px]">
-            Stake HBAR to enter the match. Score a goal to receive a <span className="text-neonGreen font-bold">2x payout</span>!
+            Stake X1T on <span className="text-x1GreenBright font-bold">X1 EcoChain</span> to enter the match. Score a goal to receive a <span className="text-neonGreen font-bold">2x payout</span>!
           </p>
+          <X1Badge />
         </div>
 
         <div className="flex flex-col gap-4 w-full">
           {/* Numeric Input */}
           <div className="flex flex-col gap-2 w-full">
             <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
-              Stake Amount (Min 5 HBAR)
+              Stake Amount (Min 5 X1T)
             </label>
             <input 
               type="number"
@@ -51,7 +53,7 @@ const StakingMenu = () => {
           <div className="bg-black/50 border border-green-500/30 rounded-lg p-3 mb-4 text-sm text-gray-300">
             <h4 className="text-green-400 font-bold mb-2">HOW TO PLAY</h4>
             <ol className="list-decimal list-inside space-y-1.5 font-mono text-xs leading-relaxed text-gray-300">
-              <li>Stake your Testnet HBAR to enter the pitch.</li>
+              <li>Stake test X1T on X1 EcoChain to enter the pitch.</li>
               <li>Tap or click 'SHOOT' and aim your shot.</li>
               <li>Beat the AI Keeper to earn a 2x payout and XP!</li>
             </ol>
@@ -62,7 +64,7 @@ const StakingMenu = () => {
             onClick={handleStakeClick} 
             className="btn-neon w-full py-4 text-xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] disabled:opacity-50 mt-2"
           >
-            STAKE HBAR
+            STAKE X1T
           </button>
           
           <button 

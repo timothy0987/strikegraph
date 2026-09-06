@@ -7,49 +7,36 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-import { getDefaultConfig, RainbowKitProvider, darkTheme, getWalletConnectConnector } from '@rainbow-me/rainbowkit';
-import { metaMaskWallet, rainbowWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import { metaMaskWallet, rainbowWallet, walletConnectWallet, injectedWallet } from '@rainbow-me/rainbowkit/wallets';
 import { WagmiProvider, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const hederaTestnet = {
-  id: 296,
-  name: 'Hedera Testnet',
-  network: 'hedera-testnet',
-  nativeCurrency: { decimals: 18, name: 'HBAR', symbol: 'HBAR' },
+// X1 EcoChain — Maculatus Testnet
+// Docs: https://x1ecochain.gitbook.io/x1-ecochain-tech-whitepaper/development-environment/testnet
+export const x1Testnet = {
+  id: 10778,
+  name: 'X1 EcoChain Testnet',
+  network: 'x1-maculatus-testnet',
+  nativeCurrency: { decimals: 18, name: 'X1T', symbol: 'X1T' },
   rpcUrls: {
-    default: { http: ['https://testnet.hashio.io/api'] },
-    public: { http: ['https://testnet.hashio.io/api'] },
+    default: { http: ['https://maculatus-rpc.x1eco.com'] },
+    public: { http: ['https://maculatus-rpc.x1eco.com'] },
   },
   blockExplorers: {
-    default: { name: 'HashScan', url: 'https://hashscan.io/testnet' },
+    default: { name: 'X1 Explorer', url: 'https://maculatus-scan.x1eco.com' },
   },
   testnet: true,
 };
-
-const hashpackWallet = ({ projectId }) => ({
-  id: 'hashpack',
-  name: 'HashPack',
-  iconUrl: 'https://www.hashpack.app/favicon.ico',
-  iconBackground: '#0b1d3a',
-  downloadUrls: {
-    chrome: 'https://chrome.google.com/webstore/detail/hashpack/jggofhoiebckgbifbhahahbgedhcphfo',
-    android: 'https://play.google.com/store/apps/details?id=app.hashpack.wallet',
-    ios: 'https://apps.apple.com/us/app/hashpack-wallet/id1612848553',
-  },
-  createConnector: getWalletConnectConnector({
-    projectId,
-  }),
-});
 
 const wallets = [
   {
     groupName: 'Recommended',
     wallets: [
-      hashpackWallet,
       metaMaskWallet,
       rainbowWallet,
       walletConnectWallet,
+      injectedWallet,
     ],
   },
 ];
@@ -57,9 +44,9 @@ const wallets = [
 const config = getDefaultConfig({
   appName: 'StrikeGraph',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
-  chains: [hederaTestnet],
+  chains: [x1Testnet],
   transports: {
-    [hederaTestnet.id]: http(),
+    [x1Testnet.id]: http('https://maculatus-rpc.x1eco.com'),
   },
   wallets,
 });

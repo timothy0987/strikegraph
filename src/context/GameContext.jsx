@@ -99,7 +99,7 @@ export const GameProvider = ({ children }) => {
 
   const stakeOnChain = (amount) => {
     setIsPending(true);
-    setPendingMessage(`Staking ${amount} HBAR...`);
+    setPendingMessage(`Staking ${amount} X1T...`);
     setCurrentAction('staking');
     writeContract({
       address: STRIKEGRAPH_STORE_ADDRESS,
@@ -123,7 +123,7 @@ export const GameProvider = ({ children }) => {
     });
   };
 
-  const purchaseTierOnChain = (tierId, priceInHbar) => {
+  const purchaseTierOnChain = (tierId, priceInX1T) => {
     setIsPending(true);
     setPendingMessage(`Purchasing Player Tier...`);
     setCurrentAction('purchasing');
@@ -132,7 +132,7 @@ export const GameProvider = ({ children }) => {
       abi: STRIKEGRAPH_STORE_ABI,
       functionName: 'buyPlayerVariant',
       args: [BigInt(tierId)],
-      value: parseEther(priceInHbar.toString()),
+      value: parseEther(priceInX1T.toString()),
       type: 'legacy',
       gas: 500000n,
     }, {
