@@ -2,6 +2,10 @@ import React, { useRef, useEffect, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
+import Jersey from './Jersey';
+
+// Keeper wears a fixed contrast kit — distinct from every outfield variant colour
+const KEEPER_KIT_COLOR = '#FF10F0';
 
 const KeeperModel = ({ gameState, keeperTarget, keeperRef, resetTrigger }) => {
   const { scene, animations, nodes } = useGLTF('/keeper2.glb');
@@ -104,7 +108,12 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef, resetTrigger }) => {
   }, [gameState, actions, animations, keeperTarget, resetTrigger]);
 
   const scaleX = keeperTarget && keeperTarget.position[0] < 0 ? -1 : 1;
-  return <primitive ref={ref} object={scene} scale={[scaleX, 1, 1]} />;
+  return (
+    <>
+      <primitive ref={ref} object={scene} scale={[scaleX, 1, 1]} />
+      <Jersey nodes={nodes} color={KEEPER_KIT_COLOR} />
+    </>
+  );
 };
 
 const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef, resetTrigger }) => {

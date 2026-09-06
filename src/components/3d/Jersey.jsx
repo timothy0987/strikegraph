@@ -1,0 +1,81 @@
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+
+/**
+ * A stylised kit shell (torso + short sleeves + collar) attached to a Mixamo
+ * rig's spine/arm bones, so it follows every animation.
+ *
+ *  - `nodes`  : the `nodes` map from the parent's useGLTF
+ *  - `color`  : team / variant colour (varies per bought player for the kicker,
+ *               a fixed contrast colour for the keeper)
+ *  - `scale`  : single knob to nudge fit if a model imports at an odd scale
+ */
+const Jersey = ({ nodes, color = '#00FFFF', scale = 1 }) => {
+  const torso = useRef();
+  const collar = useRef();
+  const lSleeve = useRef();
+  const rSleeve = useRef();
+
+  useEffect(() => {
+    if (!nodes) return;
+    const find = (suffix) => {
+      const k = Object.keys(nodes).find((n) => n.toLowerCase().endsWith(suffix));
+      return k ? nodes[k] : null;
+    };
+    const spine1 = find('spine1') || find('spine');
+    const spine2 = find('spine2') || spine1;
+    const lArm = find('leftarm');
+    const rArm = find('rightarm');
+
+    const pairs = [
+      [spine1, torso.current],
+      [spine2, collar.current],
+      [lArm, lSleeve.current],
+      [rArm, rSleeve.current],
+    ];
+    pairs.forEach(([bone, mesh]) => { if (bone && mesh) bone.add(mesh); });
+    return () => {
+      pairs.forEach(([bone, mesh]) => {
+        if (bone && mesh && mesh.parent === bone) bone.remove(mesh);
+      });
+    };
+  }, [nodes]);
+
+  const matProps = {
+    color,
+    emissive: color,
+    emissiveIntensity: 0.4,
+    roughness: 0.4,
+    metalness: 0.1,
+    side: THREE.DoubleSide,
+  };
+
+  // Rendered detached; the effect reparents each mesh onto a bone. Local
+  // transforms are in bone space (Mixamo bone local +Y runs up the spine /
+  // down the arm). `scale` matches the host model's armature scale.
+  return (
+    <>
+      {/* torso — spans waist→shoulders, slightly wider at the top */}
+      <mesh ref={torso} position={[0, 0.24 * scale, 0.01 * scale]} scale={scale} castShadow>
+        <cylinderGeometry args={[0.205, 0.165, 0.52, 24]} />
+        <meshStandardMaterial {...matProps} />
+      </mesh>
+      {/* collar ring at the neck */}
+      <mesh ref={collar} position={[0, 0.06 * scale, 0]} rotation={[Math.PI / 2, 0, 0]} scale={scale}>
+        <torusGeometry args={[0.115, 0.024, 8, 22]} />
+        <meshStandardMaterial {...matProps} />
+      </mesh>
+      {/* short sleeves on the upper arms */}
+      <mesh ref={lSleeve} position={[0, 0.1 * scale, 0]} scale={scale} castShadow>
+        <cylinderGeometry args={[0.085, 0.1, 0.18, 16, 1, true]} />
+        <meshStandardMaterial {...matProps} />
+      </mesh>
+      <mesh ref={rSleeve} position={[0, 0.1 * scale, 0]} scale={scale} castShadow>
+        <cylinderGeometry args={[0.085, 0.1, 0.18, 16, 1, true]} />
+        <meshStandardMaterial {...matProps} />
+      </mesh>
+    </>
+  );
+};
+
+export default Jersey;

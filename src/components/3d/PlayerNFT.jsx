@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import Jersey from './Jersey';
 
 const PlayerModel = ({ gameState, selectedPlayer }) => {
   const { scene, animations, nodes } = useGLTF('/player2.glb');
@@ -30,9 +31,9 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
         if (child.material) {
           const materials = Array.isArray(child.material) ? child.material : [child.material];
           materials.forEach((mat) => {
-            // Safely mutate the existing material, DO NOT clone it
+            // Faint body tint — the jersey now carries the variant colour
             mat.emissive = targetColor;
-            mat.emissiveIntensity = 0.5;
+            mat.emissiveIntensity = 0.12;
             mat.needsUpdate = true;
           });
         }
@@ -98,7 +99,12 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
     }
   }, [gameState, actions, animations]);
 
-  return <primitive ref={ref} object={scene} scale={[1, 1, 1]} />;
+  return (
+    <>
+      <primitive ref={ref} object={scene} scale={[1, 1, 1]} />
+      <Jersey nodes={nodes} color={selectedPlayer?.color || '#00FFFF'} scale={0.73} />
+    </>
+  );
 };
 
 const PlayerNFT = ({ gameState, selectedPlayer }) => {
