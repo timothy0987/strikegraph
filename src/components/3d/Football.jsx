@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Trail } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Procedural soccer ball texture generator using spherical math on a 2D canvas
@@ -223,12 +224,14 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
         
         const currentPos = new THREE.Vector3().lerpVectors(startPos, targetPos.current, progress.current);
         currentPos.y += Math.sin(progress.current * Math.PI) * 1.5; // Arc height
-        
+
         ref.current.position.copy(currentPos);
 
-        // Spin the ball
-        ref.current.rotation.x -= delta * 15;
-        ref.current.rotation.y += delta * 10;
+        // Spin: fast topspin around the travel axis plus a little side rotation
+        const spin = delta * (26 + 10 * power);
+        ref.current.rotation.x -= spin;
+        ref.current.rotation.y += spin * 0.35;
+        ref.current.rotation.z += Math.sin(progress.current * Math.PI * 3) * delta * 2;
 
         if (progress.current >= 1) {
           onKickComplete();
@@ -264,15 +267,25 @@ const Football = ({ targetZone, gameState, onKickComplete, power = 1.0, isGoal =
     }
   });
 
+  const showTrail = gameState === 'kicking' && isGoal;
+
   return (
-    <mesh ref={ref} position={[0, 0.5, 3]} castShadow>
-      <sphereGeometry args={[0.3, 32, 32]} />
-      <meshStandardMaterial 
-        map={ballTexture}
-        roughness={0.4}
-        metalness={0.1}
-      />
-    </mesh>
+    <>
+      {showTrail && (
+        <Trail width={1.1} length={5} color={'#ffffff'} attenuation={(t) => t * t} target={ref} />
+      )}
+      <mesh ref={ref} position={[0, 0.5, 3]} castShadow>
+        <sphereGeometry args={[0.3, 48, 48]} />
+        <meshPhysicalMaterial
+          map={ballTexture}
+          roughness={0.35}
+          metalness={0.04}
+          clearcoat={0.45}
+          clearcoatRoughness={0.35}
+          envMapIntensity={0.6}
+        />
+      </mesh>
+    </>
   );
 };
 

@@ -30,6 +30,10 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef, resetTrigger }) => {
       if (object.isMesh) {
         object.castShadow = true;
         object.receiveShadow = true;
+        // The keeper is mirror-scaled on dives; render both faces so lighting
+        // stays correct when the winding order flips.
+        const mats = Array.isArray(object.material) ? object.material : [object.material];
+        mats.forEach((m) => { if (m) m.side = THREE.DoubleSide; });
       }
     });
   }, [scene]);
@@ -49,26 +53,28 @@ const KeeperModel = ({ gameState, keeperTarget, keeperRef, resetTrigger }) => {
       rightArm: findBone('rightarm'),
       leftShoulder: findBone('leftshoulder'),
       rightShoulder: findBone('rightshoulder'),
+      spine: findBone('spine1') || findBone('spine'),
+      head: findBone('head'),
     };
   }, [nodes]);
 
-  useFrame(() => {
-    const { leftArm, rightArm, leftShoulder, rightShoulder } = bonesRef.current;
-    
-    // Apply downward rotations (Z-axis rotation for T-pose lowering)
-    if (leftArm) {
-      leftArm.rotation.z = -Math.PI / 3;
-    }
-    if (rightArm) {
-      rightArm.rotation.z = Math.PI / 3;
-    }
+  useFrame((state, delta) => {
+    const { leftArm, rightArm, leftShoulder, rightShoulder, spine, head } = bonesRef.current;
+    const t = state.clock.elapsedTime;
+    const idle = gameState === 'menu' || gameState === 'aiming';
 
-    // Minor downward rotation for shoulders to look natural
-    if (leftShoulder) {
-      leftShoulder.rotation.z = -Math.PI / 18;
-    }
-    if (rightShoulder) {
-      rightShoulder.rotation.z = Math.PI / 18;
+    // Only shape the ready stance while idle — let the dive clip own the arms
+    // during 'kicking' / 'result' so the save doesn't look robotic.
+    if (idle) {
+      const d = Math.min(delta * 6, 1);
+      // Arms held out and slightly forward, with a subtle alert bounce
+      const bob = Math.sin(t * 3.2) * 0.06;
+      if (leftArm) leftArm.rotation.z += (-Math.PI / 4 + bob - leftArm.rotation.z) * d;
+      if (rightArm) rightArm.rotation.z += (Math.PI / 4 - bob - rightArm.rotation.z) * d;
+      if (leftShoulder) leftShoulder.rotation.z += (-Math.PI / 14 - leftShoulder.rotation.z) * d;
+      if (rightShoulder) rightShoulder.rotation.z += (Math.PI / 14 - rightShoulder.rotation.z) * d;
+      if (spine) spine.rotation.x = 0.12 + Math.sin(t * 2.1) * 0.03; // crouched, breathing
+      if (head) head.rotation.y = Math.sin(t * 1.1) * 0.06;
     }
   });
 
@@ -127,8 +133,15 @@ const KeeperNFT = ({ keeperTarget, gameState, power = 1.0, keeperRef, resetTrigg
   }, [gameState, keeperTarget, resetTrigger]);
 
   useFrame((state, delta) => {
+    if (!ref.current) return;
     if (gameState === 'kicking' || gameState === 'result') {
       ref.current.position.lerp(targetPos.current, 5 * power * delta);
+    } else if (gameState === 'aiming' || gameState === 'menu') {
+      // Alert shuffle along the line + a light bounce on the spot
+      const t = state.clock.elapsedTime;
+      const goalX = Math.sin(t * 0.9) * 0.5 + Math.sin(t * 2.3) * 0.12;
+      ref.current.position.x += (goalX - ref.current.position.x) * Math.min(delta * 3, 1);
+      ref.current.position.y = Math.abs(Math.sin(t * 3.2)) * 0.05;
     }
   });
 

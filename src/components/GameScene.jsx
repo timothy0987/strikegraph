@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PerspectiveCamera, Environment, OrbitControls, Ring } from '@react-three/drei';
+import { PerspectiveCamera, Environment, OrbitControls, ContactShadows } from '@react-three/drei';
 import { useGame } from '../context/GameContext';
 import { useXP } from '../hooks/useXP';
 import * as THREE from 'three';
@@ -43,36 +43,60 @@ const CameraDirector = ({ gameState, isGoal, targetZone }) => {
   const targetPos = useRef(new THREE.Vector3(0, 4, 10));
   const lookAtTarget = useRef(new THREE.Vector3(0, 1.5, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
+  const targetFov = useRef(60);
+  const shake = useRef(0);
 
   useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+
     if (gameState === 'kicking' || gameState === 'result') {
       const targetAimX = targetZone?.position[0] || 0;
-      
+
       if (gameState === 'kicking') {
         // Broadcast camera: low angle, side view tracking the shot path
         targetPos.current.set(targetAimX + (targetAimX > 0 ? -1.8 : 1.8), 0.8, 1.2);
         lookAtTarget.current.set(targetAimX, 0.7, -4.5);
+        targetFov.current = 58;
+        shake.current = 0.5;
       } else if (gameState === 'result') {
-        // Replay resolution camera
         if (isGoal) {
-          // View of the ball in the net from inside the goal frame
+          // View of the ball in the net from inside the goal frame — punch in
           targetPos.current.set(targetAimX * 0.5, 1.6, -3.2);
           lookAtTarget.current.set(targetAimX, 0.4, -5.0);
+          targetFov.current = 46;
+          shake.current = 1;
         } else {
           // Close-up on the keeper catching the ball
           targetPos.current.set(targetAimX * 0.8, 1.0, -2.6);
           lookAtTarget.current.set(targetAimX, 0.8, -4.5);
+          targetFov.current = 50;
+          shake.current = 0.7;
         }
       }
-      
+
       camera.position.lerp(targetPos.current, 3.5 * delta);
       currentLookAt.current.lerp(lookAtTarget.current, 5 * delta);
-      camera.lookAt(currentLookAt.current);
+
+      // Subtle handheld broadcast wobble
+      const amp = shake.current * 0.03;
+      const look = currentLookAt.current.clone();
+      look.x += Math.sin(t * 8.3) * amp;
+      look.y += Math.cos(t * 6.7) * amp * 0.6;
+      camera.lookAt(look);
+      shake.current = THREE.MathUtils.damp(shake.current, 0, 1.5, delta);
     } else {
       // Reset targets for default view
       targetPos.current.set(0, 4, 10);
       lookAtTarget.current.set(0, 1.5, 0);
       currentLookAt.current.set(0, 1.5, 0);
+      targetFov.current = 60;
+      camera.lookAt(currentLookAt.current);
+    }
+
+    // Smooth focal-length changes for a cinematic "zoom" feel
+    if (Math.abs(camera.fov - targetFov.current) > 0.01) {
+      camera.fov = THREE.MathUtils.damp(camera.fov, targetFov.current, 4, delta);
+      camera.updateProjectionMatrix();
     }
   });
 
@@ -184,12 +208,24 @@ const GameScene = () => {
   return (
     <>
       <div style={{ width: '100vw', height: '100dvh' }}>
-        <Canvas dpr={[1, 2]} shadows style={{ background: '#050505', touchAction: 'none' }}>
+        <Canvas
+          dpr={[1, 2]}
+          shadows
+          gl={{
+            antialias: true,
+            powerPreference: 'high-performance',
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.15,
+          }}
+          style={{ background: '#070b10', touchAction: 'none' }}
+        >
           <PerspectiveCamera makeDefault position={[0, 4, 10]} fov={60} />
           <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
-          
+
+          <fog attach="fog" args={['#0a1119', 26, 72]} />
+
           {(gameState === 'aiming' || gameState === 'menu') && (
-            <OrbitControls 
+            <OrbitControls
               target={[0, 1.5, 0]}
               enablePan={false}
               enableZoom={false}
@@ -199,14 +235,40 @@ const GameScene = () => {
             />
           )}
 
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[5, 10, 5]} intensity={2} castShadow shadow-mapSize={1024} />
-          <pointLight position={[0, 2, -4]} color="#39FF14" intensity={5} distance={10} />
-          <pointLight position={[0, 2, 2]} color="#FF10F0" intensity={3} distance={8} />
+          {/* Stadium lighting rig: sky/ground fill + warm key + cool rim + floodlights */}
+          <hemisphereLight args={['#b9d5ff', '#2b3320', 0.42]} />
+          <directionalLight
+            position={[7, 13, 6]}
+            intensity={2.7}
+            color="#fff4e2"
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-bias={-0.0004}
+            shadow-normalBias={0.02}
+          >
+            <orthographicCamera attach="shadow-camera" args={[-16, 16, 16, -16, 0.1, 60]} />
+          </directionalLight>
+          <directionalLight position={[-9, 7, -11]} intensity={1.15} color="#9ec2ff" />
+          <spotLight position={[-10, 16, -2]} angle={0.5} penumbra={0.7} intensity={2.2} color="#eaf2ff" distance={45} />
+          <spotLight position={[10, 16, -2]} angle={0.5} penumbra={0.7} intensity={2.2} color="#eaf2ff" distance={45} />
+          {/* Brand-green key behind the goal — a tint, not a wash */}
+          <pointLight position={[0, 2.4, -6]} color="#5b9d07" intensity={1.6} distance={14} />
+          {/* Soft front fill so the keeper reads against the dark net */}
+          <pointLight position={[0, 3.2, -1]} color="#eef4ff" intensity={1.3} distance={9} />
 
           <Pitch />
           <Goalpost />
-          
+
+          <ContactShadows
+            position={[0, 0.012, -1]}
+            scale={26}
+            resolution={1024}
+            blur={2.6}
+            opacity={0.5}
+            far={10}
+            color="#05070a"
+          />
+
           <PlayerNFT selectedPlayer={selectedPlayer} gameState={gameState} />
           <KeeperNFT keeperTarget={keeperTarget} gameState={gameState} power={selectedPlayer?.power || 1.0} keeperRef={keeperRef} resetTrigger={resetTrigger} />
           <Football targetZone={targetZone} gameState={gameState} onKickComplete={handleKickComplete} power={selectedPlayer?.power || 1.0} isGoal={isGoal} keeperRef={keeperRef} resetTrigger={resetTrigger} />

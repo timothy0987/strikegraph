@@ -55,26 +55,28 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
       rightArm: findBone('rightarm'),
       leftShoulder: findBone('leftshoulder'),
       rightShoulder: findBone('rightshoulder'),
+      spine: findBone('spine1') || findBone('spine'),
+      head: findBone('head'),
     };
   }, [nodes]);
 
-  useFrame(() => {
-    const { leftArm, rightArm, leftShoulder, rightShoulder } = bonesRef.current;
-    
-    // Apply downward rotations (Z-axis rotation for T-pose lowering)
-    if (leftArm) {
-      leftArm.rotation.z = -Math.PI / 3;
-    }
-    if (rightArm) {
-      rightArm.rotation.z = Math.PI / 3;
-    }
+  useFrame((state, delta) => {
+    const { leftArm, rightArm, leftShoulder, rightShoulder, spine, head } = bonesRef.current;
+    const t = state.clock.elapsedTime;
+    const idle = gameState === 'menu' || gameState === 'aiming';
 
-    // Minor downward rotation for shoulders to look natural
-    if (leftShoulder) {
-      leftShoulder.rotation.z = -Math.PI / 18;
-    }
-    if (rightShoulder) {
-      rightShoulder.rotation.z = Math.PI / 18;
+    // In idle stances the baked clip is paused, so ease the arms down out of the
+    // T-pose. During the run-up / strike the animation drives them untouched.
+    if (idle) {
+      const d = Math.min(delta * 6, 1);
+      if (leftArm) leftArm.rotation.z += (-Math.PI / 3 - leftArm.rotation.z) * d;
+      if (rightArm) rightArm.rotation.z += (Math.PI / 3 - rightArm.rotation.z) * d;
+      if (leftShoulder) leftShoulder.rotation.z += (-Math.PI / 18 - leftShoulder.rotation.z) * d;
+      if (rightShoulder) rightShoulder.rotation.z += (Math.PI / 18 - rightShoulder.rotation.z) * d;
+
+      // Breathing + idle head movement so the ready stance isn't a statue
+      if (spine) spine.rotation.x = Math.sin(t * 1.6) * 0.035;
+      if (head) head.rotation.y = Math.sin(t * 0.7) * 0.08;
     }
   });
 

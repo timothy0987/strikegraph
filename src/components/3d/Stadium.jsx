@@ -13,10 +13,29 @@ const PitchInner = () => {
       if (texture) {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(16, 16);
+        texture.repeat.set(24, 24);
+        texture.anisotropy = 8;
       }
     });
   }, [colorMap, normalMap]);
+
+  // Broadcast-style mowing stripes: alternating light/dark bands across the field
+  const mowStripes = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 8;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    for (let i = 0; i < 16; i++) {
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.14)';
+      ctx.fillRect(0, (i / 16) * 512, 8, 512 / 16);
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
 
   const pitchLinesTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
@@ -46,12 +65,10 @@ const PitchInner = () => {
     ctx.stroke();
 
     // 2. Penalty Box (18-yard box)
-    // Width = 29.3 units, Depth = from Z=-5 to Z=7
     ctx.beginPath();
     ctx.strokeRect(getX(-14.65), getZ(-5), getX(14.65) - getX(-14.65), getZ(7) - getZ(-5));
 
     // 3. Goal Area (6-yard box)
-    // Width = 13.3 units, Depth = from Z=-5 to Z=-1
     ctx.beginPath();
     ctx.strokeRect(getX(-6.65), getZ(-5), getX(6.65) - getX(-6.65), getZ(-1) - getZ(-5));
 
@@ -62,7 +79,6 @@ const PitchInner = () => {
     ctx.fill();
 
     // 5. Penalty Arc (D-arc)
-    // Radius = 6.65 units, Centered at [0, 3], extending from Z=7 to Z=9.65
     const radius = (6.65 / 40) * W;
     const angleStart = Math.acos(4 / 6.65);
     const angleEnd = Math.PI - angleStart;
@@ -73,36 +89,50 @@ const PitchInner = () => {
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
     return tex;
   }, []);
 
   useEffect(() => {
     return () => {
       if (pitchLinesTexture) pitchLinesTexture.dispose();
+      if (mowStripes) mowStripes.dispose();
     };
-  }, [pitchLinesTexture]);
+  }, [pitchLinesTexture, mowStripes]);
 
   return (
     <group position={[0, 0, 0]}>
-      {/* Ground plane with PBR Grass */}
+      {/* Ground plane with PBR grass */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
+        <planeGeometry args={[120, 120]} />
         <meshStandardMaterial
           map={colorMap}
           normalMap={normalMap}
-          roughness={0.95}
+          normalScale={[0.6, 0.6]}
+          color="#5f7e3d"
+          roughness={1}
+          metalness={0}
         />
       </mesh>
 
-      {/* Pitch markings transparent overlay */}
+      {/* Mowing stripes overlay */}
+      {mowStripes && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
+          <planeGeometry args={[60, 60]} />
+          <meshBasicMaterial map={mowStripes} transparent opacity={0.5} depthWrite={false} />
+        </mesh>
+      )}
+
+      {/* Pitch markings overlay */}
       {pitchLinesTexture && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]} receiveShadow>
           <planeGeometry args={[40, 40]} />
           <meshStandardMaterial
             map={pitchLinesTexture}
             transparent
-            opacity={0.9}
-            roughness={0.8}
+            opacity={0.92}
+            roughness={0.7}
+            depthWrite={false}
           />
         </mesh>
       )}
@@ -116,27 +146,103 @@ export const Pitch = () => (
   </Suspense>
 );
 
-export const Goalpost = () => (
-  <group position={[0, 0, -5]}>
-    {/* Left Post */}
-    <mesh position={[-3.1, 1.5, 0]} castShadow>
-      <cylinderGeometry args={[0.05, 0.05, 3]} />
-      <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} />
-    </mesh>
-    {/* Right Post */}
-    <mesh position={[3.1, 1.5, 0]} castShadow>
-      <cylinderGeometry args={[0.05, 0.05, 3]} />
-      <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} />
-    </mesh>
-    {/* Crossbar */}
-    <mesh position={[0, 3.0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-      <cylinderGeometry args={[0.05, 0.05, 6.2]} />
-      <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} />
-    </mesh>
-    {/* Goal net / back lines */}
-    <mesh position={[0, 1.5, -1]} castShadow>
-      <boxGeometry args={[6.2, 3, 2]} />
-      <meshStandardMaterial color="#00FFFF" emissive="#00FFFF" emissiveIntensity={0.5} wireframe transparent opacity={0.3} />
-    </mesh>
-  </group>
+// Procedural goal-net texture: fine diagonal mesh, transparent between strands
+const useNetTexture = () => useMemo(() => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.clearRect(0, 0, 256, 256);
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 2;
+  const step = 18;
+  for (let i = -256; i < 256; i += step) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + 256, 256);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(i + 256, 0);
+    ctx.lineTo(i, 256);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}, []);
+
+const NetMaterial = ({ repeatX = 6, repeatY = 3 }) => {
+  const tex = useNetTexture();
+  useEffect(() => {
+    if (tex) tex.repeat.set(repeatX, repeatY);
+  }, [tex, repeatX, repeatY]);
+  return (
+    <meshStandardMaterial
+      map={tex}
+      transparent
+      opacity={0.8}
+      alphaTest={0.02}
+      side={THREE.DoubleSide}
+      depthWrite={false}
+      roughness={0.9}
+    />
+  );
+};
+
+const PostMat = () => (
+  <meshStandardMaterial color="#f4f4f4" roughness={0.35} metalness={0.05} emissive="#ffffff" emissiveIntensity={0.08} />
 );
+
+export const Goalpost = () => {
+  const depth = 1.6; // how far back the net cage extends
+
+  return (
+    <group position={[0, 0, -5]}>
+      {/* Left post */}
+      <mesh position={[-3.1, 1.5, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.07, 3, 16]} />
+        <PostMat />
+      </mesh>
+      {/* Right post */}
+      <mesh position={[3.1, 1.5, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.07, 3, 16]} />
+        <PostMat />
+      </mesh>
+      {/* Crossbar */}
+      <mesh position={[0, 3.0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.07, 0.07, 6.34, 16]} />
+        <PostMat />
+      </mesh>
+
+      {/* Back stanchions */}
+      <mesh position={[-3.1, 0.9, -depth]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, depth * 2, 12]} />
+        <PostMat />
+      </mesh>
+      <mesh position={[3.1, 0.9, -depth]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, depth * 2, 12]} />
+        <PostMat />
+      </mesh>
+
+      {/* Net cage — back, roof, two sides */}
+      <mesh position={[0, 1.5, -depth]}>
+        <planeGeometry args={[6.2, 3]} />
+        <NetMaterial repeatX={7} repeatY={3.5} />
+      </mesh>
+      <mesh position={[0, 3.0, -depth / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[6.2, depth]} />
+        <NetMaterial repeatX={7} repeatY={2} />
+      </mesh>
+      <mesh position={[-3.1, 1.5, -depth / 2]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[depth, 3]} />
+        <NetMaterial repeatX={2} repeatY={3.5} />
+      </mesh>
+      <mesh position={[3.1, 1.5, -depth / 2]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[depth, 3]} />
+        <NetMaterial repeatX={2} repeatY={3.5} />
+      </mesh>
+    </group>
+  );
+};
