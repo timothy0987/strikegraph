@@ -41,9 +41,14 @@ const wallets = [
   },
 ];
 
+// WalletConnect / Reown project id — a public client identifier (gated by the
+// domain allowlist on cloud.reown.com, not by secrecy). Overridable via env.
+const WALLETCONNECT_PROJECT_ID =
+  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'a3962e698042887d76923cd563655604';
+
 const config = getDefaultConfig({
   appName: 'Golazo',
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
+  projectId: WALLETCONNECT_PROJECT_ID,
   chains: [x1Testnet],
   transports: {
     [x1Testnet.id]: http('https://maculatus-rpc.x1eco.com'),
