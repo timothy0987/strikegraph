@@ -3,6 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield, Menu, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useReadContract } from 'wagmi';
+import Logo from './Logo';
 import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
 
 const TopNav = () => {
@@ -59,12 +60,7 @@ const TopNav = () => {
             <nav className="absolute top-0 left-0 w-full flex items-center justify-between p-4 px-4 overflow-hidden z-40 pointer-events-auto bg-black/40 backdrop-blur-md border-b border-white/10">
               {/* Left side: Logo & Desktop links */}
               <div className="flex items-center gap-6 pl-4">
-                <img
-                  src="/logo.png"
-                  alt="StrikeGraph AI Logo"
-                  onClick={handlePlayClick}
-                  className="h-8 sm:h-10 w-auto object-contain cursor-pointer"
-                />
+                <Logo onClick={handlePlayClick} compact />
                 <div className="hidden md:flex gap-4 ml-8">
                   <button
                     onClick={handlePlayClick}
@@ -225,11 +221,7 @@ const TopNav = () => {
                   <X size={28} />
                 </button>
 
-                <img
-                  src="/logo.png"
-                  alt="StrikeGraph AI Logo"
-                  className="h-12 w-auto object-contain mb-8"
-                />
+                <Logo size="lg" className="mb-8" />
 
                 <div className="flex flex-col gap-3 w-full max-w-[280px]">
                   <button
