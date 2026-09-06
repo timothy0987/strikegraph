@@ -7,10 +7,10 @@ import X1Badge from './X1Badge';
 // X1 EcoChain (Maculatus testnet) block explorer — Blockscout, Etherscan-compatible REST API
 const EXPLORER_API = 'https://maculatus-scan.x1eco.com/api';
 
-// Function selectors for StrikeGraphStore (identical across EVM chains)
+// Function selectors for StrikeGraphStore — keccak256(sig)[0..4], verified on-chain
 const SEL_STAKE = '0x3a4b66f1';        // stake()
 const SEL_RESOLVE = '0xbff8877f';      // resolveGame(bool)
-const SEL_BUY_VARIANT = '0x7a69dae1';  // buyPlayerVariant(uint256)
+const SEL_BUY_VARIANT = '0x23971b49';  // buyPlayerVariant(uint256)
 
 const CONTRACT_DEPLOYED = /^0x[0-9a-fA-F]{40}$/.test(STRIKEGRAPH_STORE_ADDRESS) &&
   STRIKEGRAPH_STORE_ADDRESS !== '0x0000000000000000000000000000000000000000';
