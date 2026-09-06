@@ -42,7 +42,7 @@ const wallets = [
 ];
 
 const config = getDefaultConfig({
-  appName: 'StrikeGraph',
+  appName: 'Golazo',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
   chains: [x1Testnet],
   transports: {

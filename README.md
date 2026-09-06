@@ -1,8 +1,10 @@
-# StrikeGraph | Web3 Penalty Kick Game
+# Golazo | Web3 Penalty Kick Game
 
-**Live URL:** [https://strikegraph-ai.vercel.app](https://strikegraph-ai.vercel.app)
+**Live URL:** [https://web3-penalty-kick.vercel.app](https://web3-penalty-kick.vercel.app)
 
-StrikeGraph is a Web3-integrated 3D penalty kick football game built with React, React Three Fiber, and Wagmi. It features a vibrant, high-contrast arcade aesthetic and runs on **X1 EcoChain** — an EVM-compatible Layer-1 secured by Proof of Nodes (PoN).
+Golazo is a Web3-integrated 3D penalty kick football game built with React, React Three Fiber, and Wagmi. It features a vibrant, high-contrast arcade aesthetic and runs on **X1 EcoChain** — an EVM-compatible Layer-1 secured by Proof of Nodes (PoN).
+
+> Formerly "StrikeGraph" (a Hedera hashgraph pun); renamed after migrating to X1 EcoChain. The on-chain contract keeps the name `StrikeGraphStore`.
 
 ## Features
 - **3D Gameplay**: Realistic ball physics and AI goalkeeper logic powered by React Three Fiber.
@@ -52,6 +54,8 @@ After deployment, set `STRIKEGRAPH_STORE_ADDRESS` in [`src/config/contract.js`](
    ```bash
    git clone https://github.com/timothy0987/strikegraph.git
    ```
+   <!-- repo rename to /golazo pending; GitHub keeps the old URL working via redirect -->
+
 2. Install dependencies:
    ```bash
    npm install --legacy-peer-deps

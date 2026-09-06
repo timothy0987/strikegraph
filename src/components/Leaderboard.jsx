@@ -119,7 +119,7 @@ const Leaderboard = () => {
         <div className="mt-2 flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
           {!CONTRACT_DEPLOYED ? (
             <div className="text-center py-12 px-6 text-gray-400 font-mono text-sm border border-dashed border-white/10 rounded-lg bg-black/20">
-              Store contract not deployed yet — rankings appear here once StrikeGraph is live on X1 EcoChain.
+              Store contract not deployed yet — rankings appear here once Golazo is live on X1 EcoChain.
             </div>
           ) : loading && xpData.length === 0 ? (
             <div className="text-center py-12 px-6 text-gray-400 font-mono text-sm border border-dashed border-white/10 rounded-lg bg-black/20 animate-pulse">

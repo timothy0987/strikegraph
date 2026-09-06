@@ -1,8 +1,8 @@
 import React from 'react';
 
 /**
- * StrikeGraph lockup — a crisp inline-SVG mark (a soccer ball drawn as a
- * node graph with a "strike" vector) plus the Orbitron wordmark.
+ * Golazo lockup — a crisp inline-SVG mark (a struck ball with a "screamer"
+ * trajectory vector) plus the Orbitron wordmark.
  * Vector, transparent, theme-aware — replaces the old baked PNG.
  *
  * `compact` (used in the top nav) hides the wordmark on narrow screens so the
@@ -45,7 +45,7 @@ const Logo = ({ onClick, className = '', size = 'md', compact = false }) => {
           compact ? 'hidden sm:inline' : 'inline'
         }`}
       >
-        Strike<span className="text-neonGreen">Graph</span>
+        Gol<span className="text-neonGreen">azo</span>
       </span>
     </div>
   );

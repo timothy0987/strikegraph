@@ -48,7 +48,7 @@ const Defend = () => {
         </div>
 
         <p className="text-gray-500 text-xs mt-2 font-mono uppercase tracking-widest">
-          StrikeGraph Phase 2 Roadmap
+          Golazo Phase 2 Roadmap
         </p>
       </div>
     </div>

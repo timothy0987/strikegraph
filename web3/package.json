@@ -1,7 +1,7 @@
 {
-  "name": "strikegraph-web3",
+  "name": "golazo-web3",
   "version": "1.0.0",
-  "description": "StrikeGraph Smart Contracts",
+  "description": "Golazo smart contracts (StrikeGraphStore on X1 EcoChain)",
   "main": "index.js",
   "scripts": {
     "compile": "hardhat compile",

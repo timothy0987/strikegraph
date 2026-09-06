@@ -6,16 +6,16 @@ const GameUI = () => {
   const { gameState, setGameState, result, resolveGameOnChain, triggerReset } = useGame();
 
   const getTwitterShareUrl = () => {
-    const gameUrl = "https://strikegraph-ai.xyz";
+    const gameUrl = "https://web3-penalty-kick.vercel.app";
     let text = "";
     let hashtags = "";
-    
+
     if (result === 'GOAL') {
-      text = "Just scored an absolute banger against the StrikeGraph AI! ⚽ Play the game and try to beat my high score on X1 EcoChain: ";
-      hashtags = "StrikeGraph,X1EcoChain,PlayToEarn";
+      text = "GOLAZO! 🚀 Just buried one against the Golazo AI keeper and doubled my stake on X1 EcoChain. Try to beat my score: ";
+      hashtags = "Golazo,X1EcoChain,PlayToEarn";
     } else {
-      text = "The StrikeGraph AI goalie just made an insane save against me... 🧤 I need that 1.8x Accuracy NFT for round two: ";
-      hashtags = "StrikeGraph,X1EcoChain,PlayToOwn";
+      text = "The Golazo AI keeper just pulled off an insane save on me... 🧤 I need that 1.8x Accuracy NFT for round two: ";
+      hashtags = "Golazo,X1EcoChain,PlayToOwn";
     }
     
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(gameUrl)}&hashtags=${hashtags}`;
