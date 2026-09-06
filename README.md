@@ -1,6 +1,6 @@
 # Golazo | Web3 Penalty Kick Game
 
-**Live URL:** [https://web3-penalty-kick.vercel.app](https://web3-penalty-kick.vercel.app)
+**Live URL:** [https://strikegraph-ai.xyz](https://strikegraph-ai.xyz)
 
 Golazo is a Web3-integrated 3D penalty kick football game built with React, React Three Fiber, and Wagmi. It features a vibrant, high-contrast arcade aesthetic and runs on **X1 EcoChain** — an EVM-compatible Layer-1 secured by Proof of Nodes (PoN).
 

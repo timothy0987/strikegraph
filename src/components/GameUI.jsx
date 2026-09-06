@@ -6,7 +6,7 @@ const GameUI = () => {
   const { gameState, setGameState, result, resolveGameOnChain, triggerReset } = useGame();
 
   const getTwitterShareUrl = () => {
-    const gameUrl = "https://web3-penalty-kick.vercel.app";
+    const gameUrl = "https://strikegraph-ai.xyz";
     let text = "";
     let hashtags = "";
 
