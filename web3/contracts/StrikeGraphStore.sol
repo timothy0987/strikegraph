@@ -15,9 +15,9 @@ contract StrikeGraphStore {
     // 3 = Legend
 
     // Player variant prices in native X1T (18-decimal EVM wei, standard EVM semantics)
-    uint256 public constant PRICE_STRIKER = 50 ether; // 50 X1T
-    uint256 public constant PRICE_SNIPER = 100 ether; // 100 X1T
-    uint256 public constant PRICE_LEGEND = 500 ether; // 500 X1T
+    uint256 public constant PRICE_STRIKER = 5 ether; // 5 X1T
+    uint256 public constant PRICE_SNIPER = 10 ether; // 10 X1T
+    uint256 public constant PRICE_LEGEND = 25 ether; // 25 X1T
 
     // Track owned player tier per address
     mapping(address => uint256) public ownedTiers;
@@ -91,7 +91,7 @@ contract StrikeGraphStore {
      * @notice Stake native X1T before playing (minimum 5 X1T).
      */
     function stake() external payable {
-        require(msg.value >= 5 ether, "Minimum stake is 5 X1T");
+        require(msg.value >= 0.5 ether, "Minimum stake is 0.5 X1T");
         require(activeStakes[msg.sender] == 0, "Already have an active stake");
 
         activeStakes[msg.sender] = msg.value;

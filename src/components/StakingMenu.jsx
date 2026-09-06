@@ -5,12 +5,12 @@ import X1Badge from './X1Badge';
 
 const StakingMenu = () => {
   const { stakeOnChain, isPending, setGameState } = useGame();
-  const [stakeAmount, setStakeAmount] = useState(5);
+  const [stakeAmount, setStakeAmount] = useState(0.5);
 
   const handleStakeClick = () => {
     const val = parseFloat(stakeAmount);
-    if (isNaN(val) || val < 5) {
-      alert("Minimum stake is 5 X1T");
+    if (isNaN(val) || val < 0.5) {
+      alert("Minimum stake is 0.5 X1T");
       return;
     }
     stakeOnChain(val);
@@ -36,12 +36,12 @@ const StakingMenu = () => {
           {/* Numeric Input */}
           <div className="flex flex-col gap-2 w-full">
             <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
-              Stake Amount (Min 5 X1T)
+              Stake Amount (Min 0.5 X1T)
             </label>
-            <input 
+            <input
               type="number"
-              min="5"
-              step="any"
+              min="0.5"
+              step="0.5"
               value={stakeAmount}
               onChange={(e) => setStakeAmount(e.target.value)}
               disabled={isPending}

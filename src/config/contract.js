@@ -1,7 +1,8 @@
 // Deployed StrikeGraphStore contract address on X1 EcoChain — Maculatus Testnet (chainId 10778)
-// Deployed 2026-09-06 · owner/deployer 0xA8EE7227659b2d37C8C551316edfCCEE6458F315
-// Explorer: https://maculatus-scan.x1eco.com/address/0x9abdEa3C7Ad6Db0C41802f2B59e8045B0B277dA2
-export const STRIKEGRAPH_STORE_ADDRESS = "0x9abdEa3C7Ad6Db0C41802f2B59e8045B0B277dA2";
+// Redeployed 2026-09-07 with reduced economy (stake min 0.5 X1T; variants 5 / 10 / 25 X1T).
+// owner/deployer 0xA8EE7227659b2d37C8C551316edfCCEE6458F315
+// Explorer: https://maculatus-scan.x1eco.com/address/0xC6897B1EaAc55a1c9417760F04541451caE1746f
+export const STRIKEGRAPH_STORE_ADDRESS = "0xC6897B1EaAc55a1c9417760F04541451caE1746f";
 
 export const STRIKEGRAPH_STORE_ABI = [
   {
