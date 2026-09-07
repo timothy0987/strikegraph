@@ -31,9 +31,9 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
         if (child.material) {
           const materials = Array.isArray(child.material) ? child.material : [child.material];
           materials.forEach((mat) => {
-            // Faint body tint — the jersey now carries the variant colour
+            // Body tint backs up the jersey so the kicker reads in its colour
             mat.emissive = targetColor;
-            mat.emissiveIntensity = 0.12;
+            mat.emissiveIntensity = 0.22;
             mat.needsUpdate = true;
           });
         }
@@ -102,7 +102,7 @@ const PlayerModel = ({ gameState, selectedPlayer }) => {
   return (
     <>
       <primitive ref={ref} object={scene} scale={[1, 1, 1]} />
-      <Jersey nodes={nodes} color={selectedPlayer?.color || '#00FFFF'} scale={0.73} />
+      <Jersey nodes={nodes} color={selectedPlayer?.color || '#00FFFF'} scale={0.73} bulk={1.28} glow={0.95} />
     </>
   );
 };
