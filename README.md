@@ -57,6 +57,23 @@ After deployment, set `GOLAZO_ARENA_ADDRESS` in [`src/config/contract.js`](src/c
 | `highestTier(address) → uint8` | best variant held (drives keeper coverage) |
 | `keeperCover(uint8 tier) → uint8` | corners the keeper covers (3 / 3 / 2 / 1) |
 
+## Play-test results (X1 EcoChain — Maculatus, 2026-09-08)
+
+`GolazoArena` at [`0x5935…78C2`](https://maculatus-scan.x1eco.com/address/0x5935513952Dd6C3D22A8993967C3cF026ed678C2), deployed + verified, funded 24 X1T.
+
+- **11 / 11 Hardhat tests pass** (`cd web3 && npm test`): commit/reveal happy paths + reverts (too-early, bad salt, wrong zone), keeper-mask bit-count per tier, `expireCommit` sweep, self-heal on stale match, ERC-721 mint / `highestTier` / transfer, owner-only liquidity.
+- **Live end-to-end** — a 3-round run of the exact `playPenalty()` sequence (`commitShot` → wait for `blockhash(commitBlock+1)` → `revealShot` → parse `ShotResolved`):
+
+  | Round | Shot | Keeper covered | Result | Match gas |
+  | --- | --- | --- | --- | --- |
+  | 1 | bottom-R | bottom-L, bottom-R, top-L | **SAVED** — stake → treasury | 0.000115 X1T |
+  | 2 | top-C | bottom-L, top-L, top-R | **GOAL** — 1.0 X1T paid (2× the 0.5 stake) | 0.000112 X1T |
+  | 3 | bottom-L | bottom-L, bottom-C, top-L | **SAVED** — stake → treasury | 0.000115 X1T |
+
+  Keeper covered exactly **3 of 6** corners each round (`keeperCover(1) = 3`, Striker held). Balances reconciled every round; match state cleared after each reveal. **~$0.0001-worth of gas per full match.**
+
+- **Browser flow, real wallets** — beyond the scripted run, Blockscout has indexed **7 settled matches** on the contract; **3 of them (1 goal, 2 saves) came from wallet sessions on [strikegraph-ai.xyz](https://strikegraph-ai.xyz)** — i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and the per-wallet record panel read these `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
+
 ## Getting Started
 
 ### Prerequisites
