@@ -84,8 +84,16 @@ const CameraDirector = ({ gameState, isGoal, targetZone }) => {
       look.y += Math.cos(t * 6.7) * amp * 0.6;
       camera.lookAt(look);
       shake.current = THREE.MathUtils.damp(shake.current, 0, 1.5, delta);
+    } else if (gameState === 'menu') {
+      // Slow establishing orbit around the stadium behind the landing hero
+      const a = t * 0.055;
+      const R = 17;
+      camera.position.set(Math.sin(a) * R, 5.4 + Math.sin(t * 0.18) * 0.7, Math.cos(a) * R + 1.5);
+      currentLookAt.current.lerp(lookAtTarget.current.set(0, 1.8, -2.5), Math.min(2 * delta, 1));
+      camera.lookAt(currentLookAt.current);
+      targetFov.current = 52;
     } else {
-      // Reset targets for default view
+      // 'aiming' — OrbitControls owns the camera; just keep targets sane
       targetPos.current.set(0, 4, 10);
       lookAtTarget.current.set(0, 1.5, 0);
       currentLookAt.current.set(0, 1.5, 0);
@@ -212,7 +220,7 @@ const GameScene = () => {
 
           <fog attach="fog" args={['#0a1119', 42, 120]} />
 
-          {(gameState === 'aiming' || gameState === 'menu') && (
+          {gameState === 'aiming' && (
             <OrbitControls
               target={[0, 1.5, 0]}
               enablePan={false}
