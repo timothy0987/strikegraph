@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import Football from './3d/Football';
 import PlayerNFT from './3d/PlayerNFT';
 import KeeperNFT from './3d/KeeperNFT';
-import { Pitch, Goalpost } from './3d/Stadium';
+import { Pitch, Goalpost, StadiumSurround } from './3d/Stadium';
 
 const KEEPER_SAVE_STAT = 60;
 
@@ -210,7 +210,7 @@ const GameScene = () => {
           <PerspectiveCamera makeDefault position={[0, 4, 10]} fov={60} />
           <CameraDirector gameState={gameState} isGoal={isGoal} targetZone={targetZone} />
 
-          <fog attach="fog" args={['#0a1119', 26, 72]} />
+          <fog attach="fog" args={['#0a1119', 42, 120]} />
 
           {(gameState === 'aiming' || gameState === 'menu') && (
             <OrbitControls
@@ -224,7 +224,8 @@ const GameScene = () => {
           )}
 
           {/* Stadium lighting rig: sky/ground fill + warm key + cool rim + floodlights */}
-          <hemisphereLight args={['#b9d5ff', '#2b3320', 0.42]} />
+          <hemisphereLight args={['#c6dcff', '#38431f', 0.62]} />
+          <ambientLight intensity={0.22} color="#dfe9ff" />
           <directionalLight
             position={[7, 13, 6]}
             intensity={2.7}
@@ -245,6 +246,7 @@ const GameScene = () => {
           <pointLight position={[0, 3.2, -1]} color="#eef4ff" intensity={1.3} distance={9} />
 
           <Pitch />
+          <StadiumSurround />
           <Goalpost />
 
           <ContactShadows

@@ -19,16 +19,16 @@ const PitchInner = () => {
     });
   }, [colorMap, normalMap]);
 
-  // Broadcast-style mowing stripes: alternating light/dark bands across the field
+  // Broadcast-style mowing stripes: alternating light/dark bands running goal-ward
   const mowStripes = useMemo(() => {
     const canvas = document.createElement('canvas');
-    canvas.width = 8;
-    canvas.height = 512;
+    canvas.width = 512;
+    canvas.height = 8;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
-    for (let i = 0; i < 16; i++) {
-      ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.14)';
-      ctx.fillRect(0, (i / 16) * 512, 8, 512 / 16);
+    for (let i = 0; i < 12; i++) {
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.20)';
+      ctx.fillRect((i / 12) * 512, 0, 512 / 12, 8);
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.RepeatWrapping;
@@ -108,18 +108,20 @@ const PitchInner = () => {
         <meshStandardMaterial
           map={colorMap}
           normalMap={normalMap}
-          normalScale={[0.6, 0.6]}
-          color="#5f7e3d"
-          roughness={1}
+          normalScale={[0.5, 0.5]}
+          color="#6f9d49"
+          emissive="#132a10"
+          emissiveIntensity={0.55}
+          roughness={0.95}
           metalness={0}
         />
       </mesh>
 
-      {/* Mowing stripes overlay */}
+      {/* Mowing stripes overlay — bands run toward the goal */}
       {mowStripes && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
-          <planeGeometry args={[60, 60]} />
-          <meshBasicMaterial map={mowStripes} transparent opacity={0.5} depthWrite={false} />
+          <planeGeometry args={[44, 52]} />
+          <meshBasicMaterial map={mowStripes} transparent opacity={0.7} depthWrite={false} />
         </mesh>
       )}
 
@@ -130,8 +132,10 @@ const PitchInner = () => {
           <meshStandardMaterial
             map={pitchLinesTexture}
             transparent
-            opacity={0.92}
-            roughness={0.7}
+            opacity={1}
+            emissive="#ffffff"
+            emissiveIntensity={0.18}
+            roughness={0.6}
             depthWrite={false}
           />
         </mesh>
@@ -139,6 +143,127 @@ const PitchInner = () => {
     </group>
   );
 };
+
+// ---------------------------------------------------------------------------
+//  Stadium surround: dark apron, LED perimeter boards, tiered crowd stands
+// ---------------------------------------------------------------------------
+const useCrowdTexture = () =>
+  useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.fillStyle = '#161c28';
+    ctx.fillRect(0, 0, 256, 128);
+    const tints = ['#ffffff', '#a9c8ff', '#ffe1b0', '#c6f7cf', '#ffb4de', '#39FF14'];
+    for (let i = 0; i < 2600; i += 1) {
+      ctx.fillStyle = tints[(Math.random() * tints.length) | 0];
+      ctx.globalAlpha = 0.4 + Math.random() * 0.55;
+      ctx.fillRect(Math.random() * 256, Math.random() * 128, 1.8, 1.8);
+    }
+    ctx.globalAlpha = 1;
+    // vignette so the deck darkens toward the top / edges
+    const grad = ctx.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, 'rgba(6,9,15,0.75)');
+    grad.addColorStop(0.45, 'rgba(6,9,15,0.1)');
+    grad.addColorStop(1, 'rgba(6,9,15,0.55)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 128);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
+
+const Board = ({ position, size, rotation = [0, 0, 0], color = '#39FF14' }) => (
+  <group position={position} rotation={rotation}>
+    <mesh castShadow receiveShadow>
+      <boxGeometry args={size} />
+      <meshStandardMaterial color="#0c1016" roughness={0.6} metalness={0.15} />
+    </mesh>
+    {/* glowing LED strip along the top */}
+    <mesh position={[0, size[1] / 2 - 0.06, size[2] / 2 + 0.005]}>
+      <planeGeometry args={[size[0] * 0.98, 0.16]} />
+      <meshBasicMaterial color={color} toneMapped={false} />
+    </mesh>
+  </group>
+);
+
+const Stand = ({ position, rotation, width, height = 12, depth = 10 }) => {
+  const crowd = useCrowdTexture();
+  useEffect(() => {
+    if (crowd) crowd.repeat.set(Math.max(2, width / 6), 4);
+  }, [crowd, width]);
+  return (
+    <group position={position} rotation={rotation}>
+      {/* raked seating deck */}
+      <mesh position={[0, height / 2, -depth / 2]} rotation={[-0.42, 0, 0]} receiveShadow>
+        <planeGeometry args={[width, Math.hypot(height, depth)]} />
+        <meshStandardMaterial
+          map={crowd}
+          emissiveMap={crowd}
+          color="#2a3346"
+          emissive="#5a6f9a"
+          emissiveIntensity={0.7}
+          roughness={1}
+        />
+      </mesh>
+      {/* dark stand roof + back wall so no void shows through */}
+      <mesh position={[0, height, -depth]} rotation={[0.5, 0, 0]}>
+        <planeGeometry args={[width, depth * 0.7]} />
+        <meshStandardMaterial color="#0c111b" roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, height * 0.6, -depth - 0.3]}>
+        <planeGeometry args={[width, height * 1.6]} />
+        <meshStandardMaterial color="#0a0f18" roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+};
+
+const Pylon = ({ x, z }) => (
+  <group position={[x, 0, z]}>
+    <mesh position={[0, 6, 0]}>
+      <cylinderGeometry args={[0.12, 0.18, 12, 10]} />
+      <meshStandardMaterial color="#141821" roughness={0.7} />
+    </mesh>
+    <mesh position={[0, 12.4, 0]}>
+      <boxGeometry args={[2.6, 1.1, 0.4]} />
+      <meshStandardMaterial color="#0c1016" roughness={0.6} />
+    </mesh>
+    <mesh position={[0, 12.4, 0.3]}>
+      <planeGeometry args={[2.4, 0.9]} />
+      <meshBasicMaterial color="#dfeaff" toneMapped={false} />
+    </mesh>
+    <pointLight position={[0, 13, 2]} color="#eaf2ff" intensity={4} distance={34} decay={2} />
+  </group>
+);
+
+export const StadiumSurround = () => (
+  <group>
+    {/* dark apron that swallows the horizon under the fog */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, -8]} receiveShadow>
+      <planeGeometry args={[400, 400]} />
+      <meshStandardMaterial color="#05070a" roughness={1} />
+    </mesh>
+
+    {/* LED perimeter boards around the play area */}
+    <Board position={[0, 0.5, -7.6]} size={[34, 1.0, 0.3]} color="#2bd10f" />
+    <Board position={[-17.5, 0.5, 4]} size={[0.3, 1.0, 23]} color="#00c8e0" />
+    <Board position={[17.5, 0.5, 4]} size={[0.3, 1.0, 23]} color="#00c8e0" />
+    <Board position={[0, 0.5, 16]} size={[34, 1.0, 0.3]} color="#d40fbf" />
+
+    {/* stands: behind the goal + both touchlines */}
+    <Stand position={[0, 0, -11]} rotation={[0, 0, 0]} width={54} height={13} depth={12} />
+    <Stand position={[-24, 0, 4]} rotation={[0, Math.PI / 2, 0]} width={46} height={11} depth={11} />
+    <Stand position={[24, 0, 4]} rotation={[0, -Math.PI / 2, 0]} width={46} height={11} depth={11} />
+
+    <Pylon x={-20} z={-11} />
+    <Pylon x={20} z={-11} />
+  </group>
+);
 
 export const Pitch = () => (
   <Suspense fallback={null}>
