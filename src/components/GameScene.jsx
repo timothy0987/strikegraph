@@ -103,10 +103,20 @@ const CameraDirector = ({ gameState, isGoal, targetZone }) => {
   return null;
 };
 
+// 6 goal zones: index = row*3 + col.  col 0/1/2 = L/C/R, row 0/1 = low/high
+const ZONE_X = [-2.0, 0, 2.0];
+const ZONE_Y = [0.7, 2.35];
+export const posToZone = (x, y) => {
+  const col = x < -1 ? 0 : x > 1 ? 2 : 1;
+  const row = y < 1.5 ? 0 : 1;
+  return row * 3 + col;
+};
+const zoneToPos = (zone) => ({ x: ZONE_X[zone % 3], y: ZONE_Y[Math.floor(zone / 3)] });
+
 const GameScene = () => {
-  const { gameState, setGameState, selectedPlayer, setResult, resetTrigger } = useGame();
+  const { gameState, setGameState, selectedPlayer, setResult, resetTrigger, stakeAmount, playPenalty, chainResult } = useGame();
   const { addXP } = useXP();
-  
+
   const defaultCenterPos = useMemo(() => new THREE.Vector3(0, 1.5, -5.0), []);
   const [targetPos, setTargetPos] = useState(defaultCenterPos);
   const [targetZone, setTargetZone] = useState(null);
@@ -123,6 +133,20 @@ const GameScene = () => {
       setTargetPos(defaultCenterPos.clone());
     }
   }, [resetTrigger, defaultCenterPos]);
+
+  // When the chain returns the settled outcome, stage the shot + keeper dive to match it
+  useEffect(() => {
+    if (!chainResult || gameState === 'result') return;
+    const shot = zoneToPos(chainResult.shotZone);
+    const keep = zoneToPos(chainResult.keeperZone);
+    const jitter = () => (Math.random() - 0.5) * 0.5;
+    setIsGoal(chainResult.goal);
+    setTargetZone({ position: [shot.x + jitter(), shot.y + jitter() * 0.6, -5.0] });
+    setKeeperTarget({
+      position: [chainResult.goal ? keep.x : shot.x, chainResult.goal ? keep.y : shot.y, -5.0],
+    });
+    setGameState('kicking');
+  }, [chainResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (gameState !== 'aiming') return;
@@ -154,54 +178,18 @@ const GameScene = () => {
       if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
     if (gameState !== 'aiming') return;
-    
-    const accuracy = selectedPlayer?.accuracy || 1.0;
-    const varianceX = (Math.random() - 0.5) * 1.5;
-    const varianceY = (Math.random() - 0.5) * 1.0;
-    const reducedVarianceX = varianceX / accuracy;
-    const reducedVarianceY = varianceY / accuracy;
 
-    let finalAimX = targetPos.x + reducedVarianceX;
-    let finalAimY = targetPos.y + reducedVarianceY;
-
-    // Clamp values so shot remains inside goal mouth bounds
-    finalAimX = Math.max(Math.min(finalAimX, 3.1), -3.1);
-    finalAimY = Math.max(Math.min(finalAimY, 3.0), 0.1);
-
-    // Determine goal/save outcome based on accuracy
-    const baseWinChance = 0.30;
-    const finalWinChance = baseWinChance * accuracy;
-    const isGoalOutcome = Math.random() < finalWinChance;
-    setIsGoal(isGoalOutcome);
-
-    // Set target zone object for Football.jsx
-    setTargetZone({ position: [finalAimX, finalAimY, -5.0] });
-    
-    // Choose keeper's X position based on the outcome
-    let keeperX;
-    if (isGoalOutcome) {
-      // Dive away: if ball is on left, dive right; if ball is on right, dive left
-      if (Math.abs(finalAimX) < 0.2) {
-        keeperX = Math.random() < 0.5 ? (0.9 + Math.random() * 1.6) : (-0.9 - Math.random() * 1.6);
-      } else if (finalAimX < 0) {
-        keeperX = 0.9 + Math.random() * 1.6;
-      } else {
-        keeperX = -0.9 - Math.random() * 1.6;
-      }
-    } else {
-      // Dive to the same spot to save it
-      keeperX = finalAimX;
-    }
-    
-    setKeeperTarget({ position: [keeperX, finalAimY, -5.0] });
-    setGameState('kicking');
+    // Quantise the aim to one of the 6 corners and hand it to the commit/reveal flow.
+    // The outcome comes back from the contract (chainResult) — the client no longer decides.
+    const shotZone = posToZone(targetPos.x, targetPos.y);
+    playPenalty(shotZone, stakeAmount);
   };
 
   const handleKickComplete = () => {
     if (gameState !== 'kicking') return;
-    
-    addXP(50);
-    setResult(isGoal ? 'GOAL' : 'SAVED');
+
+    addXP(chainResult?.goal ? 50 : 20);
+    setResult(chainResult?.goal ? 'GOAL' : 'SAVED');
     setGameState('result');
   };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
-import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
+import { GOLAZO_ARENA_ADDRESS, GOLAZO_ARENA_ABI } from '../config/contract';
 import { Landmark, ArrowDownCircle, ShieldCheck, AlertCircle } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -11,8 +11,8 @@ const AdminPanel = () => {
 
   // 1. Read owner address from smart contract (memoized to prevent loops)
   const ownerReadConfig = React.useMemo(() => ({
-    address: STRIKEGRAPH_STORE_ADDRESS,
-    abi: STRIKEGRAPH_STORE_ABI,
+    address: GOLAZO_ARENA_ADDRESS,
+    abi: GOLAZO_ARENA_ABI,
     functionName: 'owner',
     query: {
       notifyOnChangeProps: ['data'],
@@ -23,7 +23,7 @@ const AdminPanel = () => {
 
   // 2. Read current balance of the smart contract (memoized to prevent loops)
   const balanceConfig = React.useMemo(() => ({
-    address: STRIKEGRAPH_STORE_ADDRESS,
+    address: GOLAZO_ARENA_ADDRESS,
     query: {
       notifyOnChangeProps: ['data'],
     }
@@ -70,8 +70,8 @@ const AdminPanel = () => {
     }
 
     writeContract({
-      address: STRIKEGRAPH_STORE_ADDRESS,
-      abi: STRIKEGRAPH_STORE_ABI,
+      address: GOLAZO_ARENA_ADDRESS,
+      abi: GOLAZO_ARENA_ABI,
       functionName: 'withdrawLiquidity',
       args: [parseEther(val.toString())],
       type: 'legacy',
@@ -129,7 +129,7 @@ const AdminPanel = () => {
             HOUSE TREASURY
           </h1>
           <p className="text-gray-400 text-xs text-center font-mono">
-            Contract: {STRIKEGRAPH_STORE_ADDRESS.slice(0, 8)}...{STRIKEGRAPH_STORE_ADDRESS.slice(-8)}
+            Contract: {GOLAZO_ARENA_ADDRESS.slice(0, 8)}...{GOLAZO_ARENA_ADDRESS.slice(-8)}
           </p>
         </div>
 

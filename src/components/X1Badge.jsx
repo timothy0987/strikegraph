@@ -2,15 +2,15 @@ import React from 'react';
 
 // Small "Powered by X1 EcoChain" chip used across menus so the chain identity is
 // always visible. Links out to the X1 explorer for the deployed store contract.
-import { STRIKEGRAPH_STORE_ADDRESS } from '../config/contract';
+import { GOLAZO_ARENA_ADDRESS } from '../config/contract';
 
 const EXPLORER = 'https://maculatus-scan.x1eco.com';
-const isDeployed = /^0x[0-9a-fA-F]{40}$/.test(STRIKEGRAPH_STORE_ADDRESS) &&
-  STRIKEGRAPH_STORE_ADDRESS !== '0x0000000000000000000000000000000000000000';
+const isDeployed = /^0x[0-9a-fA-F]{40}$/.test(GOLAZO_ARENA_ADDRESS) &&
+  GOLAZO_ARENA_ADDRESS !== '0x0000000000000000000000000000000000000000';
 
 const X1Badge = ({ className = '' }) => {
   const href = isDeployed
-    ? `${EXPLORER}/address/${STRIKEGRAPH_STORE_ADDRESS}`
+    ? `${EXPLORER}/address/${GOLAZO_ARENA_ADDRESS}`
     : EXPLORER;
 
   return (

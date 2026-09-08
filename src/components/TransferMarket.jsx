@@ -3,14 +3,15 @@ import { useGame } from '../context/GameContext';
 import { ChevronLeft, Zap, Target } from 'lucide-react';
 
 const TransferMarket = () => {
-  const { 
-    setGameState, 
-    playerVariants, 
-    selectedPlayer, 
-    setSelectedPlayer, 
-    userOwnedTier, 
-    purchaseTierOnChain, 
-    isPending 
+  const {
+    setGameState,
+    playerVariants,
+    selectedPlayer,
+    setSelectedPlayer,
+    userOwnedTier,
+    buyVariant,
+    lastMintedTokenId,
+    isPending,
   } = useGame();
 
   const handleEquip = (variant) => {
@@ -20,7 +21,7 @@ const TransferMarket = () => {
 
   const handlePurchase = (variant) => {
     if (isPending) return;
-    purchaseTierOnChain(variant.tier, variant.price);
+    buyVariant(variant.tier, variant.price);
   };
 
   return (
@@ -38,7 +39,12 @@ const TransferMarket = () => {
       <div className="w-full max-w-5xl flex flex-col gap-8 px-6">
         <div className="text-center">
           <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonPink to-neonBlue drop-shadow-[0_0_10px_rgba(255,16,240,0.5)] tracking-wider">TRANSFER MARKET</h2>
-          <p className="text-gray-400 text-sm mt-2">Equip unique player variants to boost your stats</p>
+          <p className="text-gray-400 text-sm mt-2">
+            Each variant mints a real ERC-721 (&ldquo;Golazo Player&rdquo;) — a higher tier makes the keeper cover fewer corners
+          </p>
+          {lastMintedTokenId != null && (
+            <p className="text-neonGreen text-xs font-mono mt-2">✔ Minted Golazo Player #{lastMintedTokenId}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
@@ -83,7 +89,7 @@ const TransferMarket = () => {
                       style={{ backgroundColor: `${variant.color}20`, borderColor: variant.color, color: variant.color }}
                       className="w-full font-bold text-sm py-2 rounded-lg border hover:bg-opacity-40 transition-colors tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isPending ? 'PURCHASING...' : 'PURCHASE'}
+                      {isPending ? 'MINTING...' : 'MINT'}
                     </button>
                   )}
                 </div>

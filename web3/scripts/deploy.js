@@ -9,18 +9,17 @@ async function main() {
   console.log(`Deployer: ${deployer.address}`);
   console.log(`Balance:  ${hre.ethers.formatEther(balance)} X1T`);
 
-  const StrikeGraphStore = await hre.ethers.getContractFactory("StrikeGraphStore");
-  console.log("Deploying StrikeGraphStore...");
-  const store = await StrikeGraphStore.deploy();
+  const GolazoArena = await hre.ethers.getContractFactory("GolazoArena");
+  console.log("Deploying GolazoArena...");
+  const arena = await GolazoArena.deploy();
+  await arena.waitForDeployment();
+  const address = await arena.getAddress();
 
-  await store.waitForDeployment();
-  const address = await store.getAddress();
-
-  console.log("\nStrikeGraphStore deployed to:", address);
+  console.log("\nGolazoArena deployed to:", address);
   console.log("Explorer: https://maculatus-scan.x1eco.com/address/" + address);
   console.log("\nNext steps:");
-  console.log("  1. Set STRIKEGRAPH_STORE_ADDRESS in src/config/contract.js to the address above.");
-  console.log("  2. Fund the contract for payouts:  store.fundContract({ value: ... })");
+  console.log("  1. Set GOLAZO_ARENA_ADDRESS in src/config/contract.js to the address above.");
+  console.log("  2. Fund payout liquidity:  arena.fundContract({ value: ... })");
   console.log(`  3. Verify:  npx hardhat verify --network x1Testnet ${address}`);
 }
 

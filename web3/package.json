@@ -1,7 +1,7 @@
 {
   "name": "golazo-web3",
   "version": "1.0.0",
-  "description": "Golazo smart contracts (StrikeGraphStore on X1 EcoChain)",
+  "description": "Golazo smart contracts (GolazoArena on X1 EcoChain — commit/reveal penalty + ERC-721 player variants)",
   "main": "index.js",
   "scripts": {
     "compile": "hardhat compile",
@@ -13,5 +13,8 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "dotenv": "^16.4.5",
     "hardhat": "^2.22.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0"
   }
 }

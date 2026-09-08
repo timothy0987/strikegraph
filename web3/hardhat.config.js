@@ -8,7 +8,13 @@ require('node:dns').setDefaultResultOrder('ipv4first');
 // X1 EcoChain — Maculatus Testnet
 // Chain ID: 10778 | RPC: https://maculatus-rpc.x1eco.com | Explorer: https://maculatus-scan.x1eco.com
 module.exports = {
-  solidity: "0.8.20",
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: { enabled: true, runs: 200 },
+      viaIR: true,
+    },
+  },
   networks: {
     x1Testnet: {
       url: process.env.X1_RPC_URL || "https://maculatus-rpc.x1eco.com",

@@ -4,7 +4,7 @@ import { Wallet, Coins, Trophy, Gamepad2, ShoppingCart, Shield, Menu, X } from '
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useReadContract } from 'wagmi';
 import Logo from './Logo';
-import { STRIKEGRAPH_STORE_ADDRESS, STRIKEGRAPH_STORE_ABI } from '../config/contract';
+import { GOLAZO_ARENA_ADDRESS, GOLAZO_ARENA_ABI } from '../config/contract';
 
 const TopNav = () => {
   const { gameState, setGameState, walletAddress } = useGame();
@@ -12,8 +12,8 @@ const TopNav = () => {
 
   // Read owner address from smart contract (memoized to prevent infinite render loops)
   const ownerReadConfig = React.useMemo(() => ({
-    address: STRIKEGRAPH_STORE_ADDRESS,
-    abi: STRIKEGRAPH_STORE_ABI,
+    address: GOLAZO_ARENA_ADDRESS,
+    abi: GOLAZO_ARENA_ABI,
     functionName: 'owner',
     query: {
       notifyOnChangeProps: ['data'],
