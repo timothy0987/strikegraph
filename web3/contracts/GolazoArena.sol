@@ -20,13 +20,20 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  *
  *  Player variants are real ERC-721s ("Golazo Player", GOLP) with fully on-chain
  *  metadata + art. A higher tier makes the keeper cover fewer corners.
+ *
+ *  Economy (single closed pool):
+ *   - every stake, every lost/forfeited stake, and every NFT sale stays in the
+ *     contract balance. GOAL pays 2x from that pool.
+ *   - at Base (keeper covers 3/6) the pool is mathematically neutral:
+ *     E[dpool] = 0.5*(+stake) + 0.5*(-stake) = 0.
+ *   - higher tiers are deliberately player-favoured; the pool + NFT revenue
+ *     subsidise them, and the owner tops up / withdraws surplus.
+ *   - commitShot caps the stake so the pool can always cover a 2x payout.
  */
 contract GolazoArena is ERC721Enumerable {
     using Strings for uint256;
 
     address public immutable owner;
-    address payable public constant TREASURY =
-        payable(0x7cBfF11440099DB224d2B54d12e1116eB565C8FE);
 
     // ----- economy -----
     uint256 public constant MIN_STAKE = 0.5 ether;
@@ -71,6 +78,11 @@ contract GolazoArena is ERC721Enumerable {
     event LiquidityFunded(address indexed from, uint256 amount);
     event LiquidityWithdrawn(address indexed to, uint256 amount);
 
+    /// Current payout pool (the whole contract balance).
+    function poolBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
     modifier onlyOwner() {
         require(msg.sender == owner, "not owner");
         _;
@@ -104,14 +116,15 @@ contract GolazoArena is ERC721Enumerable {
     function commitShot(bytes32 commitment) external payable {
         require(msg.value >= MIN_STAKE, "stake below minimum");
         require(commitment != bytes32(0), "empty commitment");
+        // pool (incl. this deposit) must be able to cover a 2x payout
+        require(2 * msg.value <= address(this).balance, "stake exceeds payout capacity");
 
         Match memory prev = matches[msg.sender];
         if (prev.commitBlock != 0) {
-            // Self-heal: an unrevealed match past its window is swept to treasury
+            // Self-heal: an unrevealed match past its window is forfeited (stake
+            // stays in the pool) so the player can start a fresh one.
             require(block.number > prev.commitBlock + REVEAL_WINDOW, "match in progress");
             delete matches[msg.sender];
-            (bool swept, ) = TREASURY.call{value: prev.stake}("");
-            require(swept, "sweep failed");
             emit CommitExpired(msg.sender, prev.stake);
         }
 
@@ -160,24 +173,20 @@ contract GolazoArena is ERC721Enumerable {
             require(address(this).balance >= payout, "insufficient liquidity");
             (bool ok, ) = msg.sender.call{value: payout}("");
             require(ok, "payout failed");
-        } else {
-            (bool ok, ) = TREASURY.call{value: stake}("");
-            require(ok, "treasury transfer failed");
         }
+        // SAVED: the stake simply stays in the pool.
         emit ShotResolved(msg.sender, shotZone, mask, goal, payout);
     }
 
-    /// Anyone can sweep a stake whose reveal window has closed (stake -> treasury).
+    /// Anyone can clear a match whose reveal window has closed. The stake is
+    /// forfeited — it just stays in the pool.
     function expireCommit(address player) external {
         Match memory m = matches[player];
         require(m.commitBlock != 0, "no active match");
         require(block.number > m.commitBlock + REVEAL_WINDOW, "still revealable");
 
-        uint256 stake = m.stake;
         delete matches[player];
-        (bool ok, ) = TREASURY.call{value: stake}("");
-        require(ok, "treasury transfer failed");
-        emit CommitExpired(player, stake);
+        emit CommitExpired(player, m.stake);
     }
 
     // --------------------------------------------------------------------- //
@@ -194,9 +203,7 @@ contract GolazoArena is ERC721Enumerable {
         uint256 price = priceOf(tier);
         require(msg.value >= price, "insufficient X1T");
 
-        (bool ok, ) = TREASURY.call{value: msg.value}("");
-        require(ok, "treasury transfer failed");
-
+        // Sale proceeds stay in the pool — they fund the higher-tier subsidy.
         tokenId = _nextTokenId++;
         tierOf[tokenId] = tier;
         _safeMint(msg.sender, tokenId);

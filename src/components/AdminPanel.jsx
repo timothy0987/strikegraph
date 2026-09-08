@@ -126,7 +126,7 @@ const AdminPanel = () => {
             <Landmark size={40} />
           </div>
           <h1 className="text-3xl font-black text-white tracking-widest text-center">
-            HOUSE TREASURY
+            PAYOUT POOL
           </h1>
           <p className="text-gray-400 text-xs text-center font-mono">
             Contract: {GOLAZO_ARENA_ADDRESS.slice(0, 8)}...{GOLAZO_ARENA_ADDRESS.slice(-8)}

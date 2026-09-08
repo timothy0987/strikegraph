@@ -6,7 +6,6 @@ import { GOLAZO_ARENA_ADDRESS, GOLAZO_ARENA_ABI } from '../config/contract';
 
 const GameContext = createContext();
 
-export const TREASURY_ADDRESS = '0x7cbff11440099db224d2b54d12e1116eb565c8fe';
 const PENDING_KEY = 'golazo_match_v2';
 
 const playerVariants = [
@@ -70,6 +69,21 @@ export const GameProvider = ({ children }) => {
   );
   const { data: matchData, refetch: refetchMatch } = useReadContract(matchConfig);
   const hasOpenCommit = !!matchData && matchData[1] !== 0n; // matchData = [stake, commitBlock, commitment]
+
+  // Payout pool — the contract caps a stake to poolBalance / 2, mirror that in the UI
+  const { data: poolData, refetch: refetchPool } = useReadContract(
+    React.useMemo(
+      () => ({
+        address: GOLAZO_ARENA_ADDRESS,
+        abi: GOLAZO_ARENA_ABI,
+        functionName: 'poolBalance',
+        query: { notifyOnChangeProps: ['data'] },
+      }),
+      [],
+    ),
+  );
+  const poolBalance = poolData ? Number(formatEther(poolData)) : 0;
+  const maxStake = poolBalance > 0 ? poolBalance / 2 : 0;
 
   const [selectedPlayer, setSelectedPlayer] = useState(playerVariants[0]);
   const [stakeAmount, setStakeAmount] = useState(0.5);
@@ -193,6 +207,7 @@ export const GameProvider = ({ children }) => {
         refetchTier?.();
         refetchMatch?.();
         refetchBalance?.();
+      refetchPool?.();
       } catch (err) {
         // commit may have landed; keep PENDING_KEY so the match can be resumed
         failOut('Penalty failed', err);
@@ -244,6 +259,7 @@ export const GameProvider = ({ children }) => {
       refetchTier?.();
       refetchMatch?.();
       refetchBalance?.();
+      refetchPool?.();
     } catch (err) {
       failOut('Reveal failed', err);
     }
@@ -274,6 +290,7 @@ export const GameProvider = ({ children }) => {
         setPendingMessage('');
         refetchTier?.();
         refetchBalance?.();
+      refetchPool?.();
       } catch (err) {
         failOut('Mint failed', err);
       }
@@ -314,6 +331,8 @@ export const GameProvider = ({ children }) => {
         playPenalty,
         resumePenalty,
         hasOpenCommit,
+        poolBalance,
+        maxStake,
         userOwnedTier,
         buyVariant,
         lastMintedTokenId,

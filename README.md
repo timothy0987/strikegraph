@@ -13,6 +13,7 @@ Golazo is a Web3-integrated 3D penalty kick football game built with React, Reac
   3. You reveal `zone + salt`; **the contract** checks the hash, computes GOAL / SAVED, and pays 2× on a goal. No server, no oracle.
 - **Player variants are real ERC-721s** (`Golazo Player` / `GOLP`) with fully on-chain metadata + SVG art. A higher tier makes the keeper cover fewer of the 6 corners (Base/Striker 3, Sniper 2, Legend 1 → a provably-fair 50/50 at Base).
 - **Everything on-chain**: the leaderboard is aggregated live from `ShotResolved` events; each result screen shows the real gas cost (~0.0001 X1T for commit + reveal) and links the reveal transaction.
+- **Closed-pool economy**: every stake, every lost/forfeited stake and every NFT sale stays in one contract pool. At Base the pool is mathematically neutral (`E[Δpool] = ½·(+stake) + ½·(−stake) = 0`); higher tiers are a deliberate, pool-funded subsidy. `commitShot` caps a stake so the pool can always pay 2×; the owner tops up / withdraws surplus.
 - **3D Gameplay**: ball physics + animated keeper via React Three Fiber; kicker/keeper wear kits (variant-coloured).
 - **Wallets**: RainbowKit + Wagmi (MetaMask, Rainbow, WalletConnect, injected).
 
@@ -32,7 +33,7 @@ Golazo is a Web3-integrated 3D penalty kick football game built with React, Reac
 | Currency symbol | `X1T` (18 decimals) |
 | Block explorer | `https://maculatus-scan.x1eco.com` (Blockscout) |
 | Faucet | X1 EcoChain Discord — `/faucet <address>` in `#faucet` (100 X1T / 24h, balance must be < 500 X1T) |
-| `GolazoArena` | [`0x5935513952Dd6C3D22A8993967C3cF026ed678C2`](https://maculatus-scan.x1eco.com/address/0x5935513952Dd6C3D22A8993967C3cF026ed678C2#code) (verified) |
+| `GolazoArena` | [`0xdd4973C245924739B38E5b8964CfAF90A17F5ca9`](https://maculatus-scan.x1eco.com/address/0xdd4973C245924739B38E5b8964CfAF90A17F5ca9#code) (verified) |
 
 ## Smart contract (`/web3`)
 
@@ -40,7 +41,7 @@ Golazo is a Web3-integrated 3D penalty kick football game built with React, Reac
 cd web3
 cp .env.example .env          # add PRIVATE_KEY of a faucet-funded wallet
 npm install
-npm test                      # 11 tests — commit/reveal, ERC-721, expiry, liquidity
+npm test                      # 12 tests — commit/reveal, stake cap, ERC-721, expiry, pool accounting
 npm run deploy                # deploys GolazoArena to x1Testnet
 ```
 
@@ -50,29 +51,31 @@ After deployment, set `GOLAZO_ARENA_ADDRESS` in [`src/config/contract.js`](src/c
 
 | Function | Purpose |
 | --- | --- |
-| `commitShot(bytes32)` payable | stake + submit the hidden shot commitment |
-| `revealShot(uint8 zone, bytes32 salt)` | reveal; contract settles GOAL/SAVED and pays out |
-| `expireCommit(address)` | anyone sweeps an unrevealed stake to treasury after ~240 blocks |
-| `buyPlayerVariant(uint8 tier)` payable | mint a `Golazo Player` ERC-721 (tier 1/2/3 = 5/10/25 X1T) |
+| `commitShot(bytes32)` payable | stake + submit the hidden shot commitment; reverts if `2·stake > poolBalance` |
+| `revealShot(uint8 zone, bytes32 salt)` | reveal; contract settles GOAL/SAVED — GOAL pays 2×, SAVED keeps the stake in the pool |
+| `expireCommit(address)` | anyone clears an unrevealed match after ~240 blocks; the stake stays in the pool |
+| `buyPlayerVariant(uint8 tier)` payable | mint a `Golazo Player` ERC-721 (tier 1/2/3 = 5/10/25 X1T); proceeds stay in the pool |
+| `poolBalance() → uint256` | current payout pool (= contract balance) |
 | `highestTier(address) → uint8` | best variant held (drives keeper coverage) |
 | `keeperCover(uint8 tier) → uint8` | corners the keeper covers (3 / 3 / 2 / 1) |
 
 ## Play-test results (X1 EcoChain — Maculatus, 2026-09-08)
 
-`GolazoArena` at [`0x5935…78C2`](https://maculatus-scan.x1eco.com/address/0x5935513952Dd6C3D22A8993967C3cF026ed678C2), deployed + verified, funded 24 X1T.
+`GolazoArena` at [`0xdd49…5ca9`](https://maculatus-scan.x1eco.com/address/0xdd4973C245924739B38E5b8964CfAF90A17F5ca9#code), deployed + verified, pool funded 24 X1T.
 
-- **11 / 11 Hardhat tests pass** (`cd web3 && npm test`): commit/reveal happy paths + reverts (too-early, bad salt, wrong zone), keeper-mask bit-count per tier, `expireCommit` sweep, self-heal on stale match, ERC-721 mint / `highestTier` / transfer, owner-only liquidity.
-- **Live end-to-end** — a 3-round run of the exact `playPenalty()` sequence (`commitShot` → wait for `blockhash(commitBlock+1)` → `revealShot` → parse `ShotResolved`):
+- **12 / 12 Hardhat tests pass** (`cd web3 && npm test`): commit/reveal happy paths + reverts (too-early, bad salt, wrong zone), **stake-capacity cap**, keeper-mask bit-count per tier, `expireCommit` (stake retained), self-heal on stale match (stake retained), ERC-721 mint / `highestTier` / transfer, **pool accounting on GOAL vs SAVED**, owner-only withdraw.
+- **Live end-to-end** — runs of the exact `playPenalty()` sequence (`commitShot` → wait for `blockhash(commitBlock+1)` → `revealShot` → parse `ShotResolved`) across two contract versions:
 
-  | Round | Shot | Keeper covered | Result | Match gas |
-  | --- | --- | --- | --- | --- |
-  | 1 | bottom-R | bottom-L, bottom-R, top-L | **SAVED** — stake → treasury | 0.000115 X1T |
-  | 2 | top-C | bottom-L, top-L, top-R | **GOAL** — 1.0 X1T paid (2× the 0.5 stake) | 0.000112 X1T |
-  | 3 | bottom-L | bottom-L, bottom-C, top-L | **SAVED** — stake → treasury | 0.000115 X1T |
+  | Shot | Keeper covered | Result | Match gas |
+  | --- | --- | --- | --- |
+  | bottom-R | bottom-L, bottom-R, top-L | **SAVED** — stake stays in pool | 0.000115 X1T |
+  | top-C | bottom-L, top-L, top-R | **GOAL** — 1.0 X1T paid (2× the 0.5 stake) | 0.000112 X1T |
+  | bottom-L | bottom-L, bottom-C, top-L | **SAVED** — stake stays in pool | 0.000115 X1T |
+  | bottom-C | (Striker, 3/6) | **SAVED** — `poolBalance` 24.0 → 24.5, retained | 0.000110 X1T |
 
-  Keeper covered exactly **3 of 6** corners each round (`keeperCover(1) = 3`, Striker held). Balances reconciled every round; match state cleared after each reveal. **~$0.0001-worth of gas per full match.**
+  On v3: a 13 X1T stake against a 24.5 X1T pool is **rejected** (`2·stake > pool`). Keeper covered exactly **3 of 6** corners each round (`keeperCover(1) = 3`). Match state cleared after every reveal. **~$0.0001-worth of gas per full match.**
 
-- **Browser flow, real wallets** — beyond the scripted run, Blockscout has indexed **7 settled matches** on the contract; **3 of them (1 goal, 2 saves) came from wallet sessions on [strikegraph-ai.xyz](https://strikegraph-ai.xyz)** — i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and the per-wallet record panel read these `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
+- **Browser flow, real wallets** — Blockscout has indexed settled matches on the contracts that came from wallet sessions on [strikegraph-ai.xyz](https://strikegraph-ai.xyz), i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and per-wallet record panel read `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
 
 ## Getting Started
 

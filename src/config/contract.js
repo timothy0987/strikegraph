@@ -1,8 +1,8 @@
 // GolazoArena — X1 EcoChain (Maculatus testnet, chainId 10778)
-// Deployed 2026-09-08 · owner/deployer 0xA8EE7227659b2d37C8C551316edfCCEE6458F315 · treasury 0x7cBfF11440099DB224d2B54d12e1116eB565C8FE
-// Verified: https://maculatus-scan.x1eco.com/address/0x5935513952Dd6C3D22A8993967C3cF026ed678C2#code
-// Provably-fair penalty via commit/reveal; player variants are ERC-721 ("Golazo Player" / GOLP).
-export const GOLAZO_ARENA_ADDRESS = "0x5935513952Dd6C3D22A8993967C3cF026ed678C2";
+// Deployed 2026-09-08 (v3: closed-pool economy — lost stakes + NFT sales stay in the pool;
+//   commitShot caps stake to what the pool can pay 2x on). owner/deployer 0xA8EE7227659b2d37C8C551316edfCCEE6458F315
+// Verified: https://maculatus-scan.x1eco.com/address/0xdd4973C245924739B38E5b8964CfAF90A17F5ca9#code
+export const GOLAZO_ARENA_ADDRESS = "0xdd4973C245924739B38E5b8964CfAF90A17F5ca9";
 
 export const GOLAZO_ARENA_ABI = [
   {
@@ -319,6 +319,19 @@ export const GOLAZO_ARENA_ABI = [
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "poolBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

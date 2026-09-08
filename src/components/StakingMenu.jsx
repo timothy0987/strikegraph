@@ -4,13 +4,17 @@ import { Coins } from 'lucide-react';
 import X1Badge from './X1Badge';
 
 const StakingMenu = () => {
-  const { setStakeAmount, isPending, setGameState } = useGame();
+  const { setStakeAmount, isPending, setGameState, poolBalance, maxStake } = useGame();
   const [amount, setAmount] = useState(0.5);
 
   const handleContinue = () => {
     const val = parseFloat(amount);
     if (Number.isNaN(val) || val < 0.5) {
       alert('Minimum stake is 0.5 X1T');
+      return;
+    }
+    if (maxStake > 0 && val > maxStake) {
+      alert(`Max stake right now is ${maxStake.toFixed(1)} X1T — the pool has to be able to pay 2×.`);
       return;
     }
     setStakeAmount(val);
@@ -34,16 +38,24 @@ const StakingMenu = () => {
 
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col gap-2 w-full">
-            <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">Stake Amount (Min 0.5 X1T)</label>
+            <label className="text-xs text-gray-400 font-mono tracking-widest uppercase">
+              Stake Amount ({maxStake > 0 ? `0.5 – ${maxStake.toFixed(1)}` : 'min 0.5'} X1T)
+            </label>
             <input
               type="number"
               min="0.5"
+              max={maxStake > 0 ? maxStake : undefined}
               step="0.5"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               disabled={isPending}
               className="w-full bg-black/60 border border-white/10 hover:border-white/20 focus:border-neonGreen focus:outline-none text-white text-center font-bold text-xl py-3 rounded-lg tracking-wider shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] transition-colors"
             />
+            {poolBalance > 0 && (
+              <span className="text-[10px] text-gray-500 font-mono text-center">
+                payout pool: {poolBalance.toFixed(1)} X1T · win pays 2× your stake
+              </span>
+            )}
           </div>
 
           <div className="bg-black/50 border border-green-500/30 rounded-lg p-3 mb-2 text-sm text-gray-300">
