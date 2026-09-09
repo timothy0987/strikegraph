@@ -1,6 +1,6 @@
 # Golazo | Web3 Penalty Kick Game
 
-**Live URL:** [https://strikegraph-ai.xyz](https://strikegraph-ai.xyz)
+**Live URL:** [https://playgolazo.xyz](https://playgolazo.xyz)
 
 Golazo is a Web3-integrated 3D penalty kick football game built with React, React Three Fiber, and Wagmi. It features a vibrant, high-contrast arcade aesthetic and runs on **X1 EcoChain** — an EVM-compatible Layer-1 secured by Proof of Nodes (PoN).
 
@@ -75,7 +75,7 @@ After deployment, set `GOLAZO_ARENA_ADDRESS` in [`src/config/contract.js`](src/c
 
   On v3: a 13 X1T stake against a 24.5 X1T pool is **rejected** (`2·stake > pool`). Keeper covered exactly **3 of 6** corners each round (`keeperCover(1) = 3`). Match state cleared after every reveal. **~$0.0001-worth of gas per full match.**
 
-- **Browser flow, real wallets** — Blockscout has indexed settled matches on the contracts that came from wallet sessions on [strikegraph-ai.xyz](https://strikegraph-ai.xyz), i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and per-wallet record panel read `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
+- **Browser flow, real wallets** — Blockscout has indexed settled matches on the contracts that came from wallet sessions on [playgolazo.xyz](https://playgolazo.xyz), i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and per-wallet record panel read `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
 
 ## Getting Started
 

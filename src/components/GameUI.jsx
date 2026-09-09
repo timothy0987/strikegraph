@@ -9,7 +9,7 @@ const GameUI = () => {
   const { gameState, setGameState, result, chainResult, setChainResult, triggerReset } = useGame();
 
   const getTwitterShareUrl = () => {
-    const gameUrl = 'https://strikegraph-ai.xyz';
+    const gameUrl = 'https://playgolazo.xyz';
     let text = '';
     let hashtags = '';
     if (result === 'GOAL') {
