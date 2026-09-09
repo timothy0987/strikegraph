@@ -59,23 +59,25 @@ After deployment, set `GOLAZO_ARENA_ADDRESS` in [`src/config/contract.js`](src/c
 | `highestTier(address) → uint8` | best variant held (drives keeper coverage) |
 | `keeperCover(uint8 tier) → uint8` | corners the keeper covers (3 / 3 / 2 / 1) |
 
-## Play-test results (X1 EcoChain — Maculatus, 2026-09-08)
+## Play-test results (X1 EcoChain — Maculatus)
 
-`GolazoArena` at [`0xdd49…5ca9`](https://maculatus-scan.x1eco.com/address/0xdd4973C245924739B38E5b8964CfAF90A17F5ca9#code), deployed + verified, pool funded 24 X1T.
+`GolazoArena` v3 at [`0xdd49…5ca9`](https://maculatus-scan.x1eco.com/address/0xdd4973C245924739B38E5b8964CfAF90A17F5ca9#code), deployed + verified, pool funded 24 X1T. Live at **[playgolazo.xyz](https://playgolazo.xyz)**.
 
 - **12 / 12 Hardhat tests pass** (`cd web3 && npm test`): commit/reveal happy paths + reverts (too-early, bad salt, wrong zone), **stake-capacity cap**, keeper-mask bit-count per tier, `expireCommit` (stake retained), self-heal on stale match (stake retained), ERC-721 mint / `highestTier` / transfer, **pool accounting on GOAL vs SAVED**, owner-only withdraw.
-- **Live end-to-end** — runs of the exact `playPenalty()` sequence (`commitShot` → wait for `blockhash(commitBlock+1)` → `revealShot` → parse `ShotResolved`) across two contract versions:
 
-  | Shot | Keeper covered | Result | Match gas |
-  | --- | --- | --- | --- |
-  | bottom-R | bottom-L, bottom-R, top-L | **SAVED** — stake stays in pool | 0.000115 X1T |
-  | top-C | bottom-L, top-L, top-R | **GOAL** — 1.0 X1T paid (2× the 0.5 stake) | 0.000112 X1T |
-  | bottom-L | bottom-L, bottom-C, top-L | **SAVED** — stake stays in pool | 0.000115 X1T |
-  | bottom-C | (Striker, 3/6) | **SAVED** — `poolBalance` 24.0 → 24.5, retained | 0.000110 X1T |
+- **Live end-to-end (2026-09-09)** — a 3-round run of the exact `playPenalty()` sequence the site executes (`commitShot` → poll until `block > commitBlock + 1` → `revealShot` → parse `ShotResolved`), against the contract [playgolazo.xyz](https://playgolazo.xyz) serves:
 
-  On v3: a 13 X1T stake against a 24.5 X1T pool is **rejected** (`2·stake > pool`). Keeper covered exactly **3 of 6** corners each round (`keeperCover(1) = 3`). Match state cleared after every reveal. **~$0.0001-worth of gas per full match.**
+  | Round | Shot | Keeper covered (3/6) | Result | Match gas |
+  | --- | --- | --- | --- | --- |
+  | 1 | bottom-R | bottom-R, top-L, top-R | **SAVED** — stake retained | 0.000102 X1T |
+  | 2 | bottom-L | bottom-L, bottom-R, top-C | **SAVED** — stake retained | 0.000102 X1T |
+  | 3 | top-C | bottom-L, bottom-R, top-R | **GOAL** — +1.0 X1T (2× the 0.5 stake) | 0.000107 X1T |
 
-- **Browser flow, real wallets** — Blockscout has indexed settled matches on the contracts that came from wallet sessions on [playgolazo.xyz](https://playgolazo.xyz), i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and per-wallet record panel read `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
+  Closed-pool economy confirmed on-chain: `poolBalance` **25.0 → 25.5 → 26.0** on the two SAVEs (stakes stay in), then **26.0 → 25.5** on the GOAL (2× paid from the pool). Player balance moved −0.5 net (staked 1.5, won 1.0, ~0.0003 gas) — reconciles exactly. Keeper covered exactly **3 of 6** corners each round (`keeperCover(0) = 3`, Base). Match state cleared after every reveal. ~18 s wall per match (mostly the 2-block wait). **~$0.0001-worth of gas per full match.**
+
+  Earlier runs also confirmed: a 13 X1T stake against a 24.5 X1T pool is **rejected** (`2·stake > pool`), and a Legend holder faces a keeper covering exactly **1** corner.
+
+- **Browser flow, real wallets** — on [playgolazo.xyz](https://playgolazo.xyz): the landing loads the current build, opening WalletConnect throws **no `origin not allowed`** (origin allowlisted at cloud.reown.com), and Blockscout has indexed settled matches from real wallet sessions — i.e. the in-browser commit → reveal (two MetaMask prompts) works in production. The leaderboard and per-wallet record panel read `ShotResolved` / `VariantMinted` logs live via the Blockscout API.
 
 ## Getting Started
 
